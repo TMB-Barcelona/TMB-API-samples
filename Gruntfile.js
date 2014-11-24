@@ -340,10 +340,9 @@ module.exports = function (grunt) {
         },
         
         // Run to create and push gh-pages
-        ghpages: {
+        'gh-pages': {
         	options: {
         		base: 'dist',
-        		add: true,
         		message: 'Auto-generated commit',
         		push: false
         	},
@@ -409,6 +408,6 @@ module.exports = function (grunt) {
     
     grunt.registerTask('gh-pages', [
     	'build',
-    	'ghpages'
+    	'gh-pages'
     ]);
 };
