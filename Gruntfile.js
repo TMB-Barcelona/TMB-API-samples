@@ -337,6 +337,17 @@ module.exports = function (grunt) {
                 //'imagemin',
                 'svgmin'
             ]
+        },
+        
+        // Run to create and push gh-pages
+        ghpages: {
+        	options: {
+        		base: 'dist',
+        		add: true,
+        		message: 'Auto-generated commit',
+        		push: false
+        	},
+        	src: ['**/*']
         }
     });
 
@@ -394,5 +405,10 @@ module.exports = function (grunt) {
         'newer:jshint',
         'test',
         'build'
+    ]);
+    
+    grunt.registerTask('gh-pages', [
+    	'build',
+    	'ghpages'
     ]);
 };

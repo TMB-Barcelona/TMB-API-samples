@@ -1,6 +1,6 @@
 {
-  "name": "thebookofopenlayers3",
-  "version": "0.0.0",
+  "name": "thetmbapisamples",
+  "version": "0.1.0",
   "dependencies": {},
   "devDependencies": {
     "grunt": "~0.4.1",
@@ -26,7 +26,8 @@
     "time-grunt": "~0.3.1",
     "jshint-stylish": "~0.1.5",
     "grunt-includes": "^0.4.5",
-    "imagemin-gifsicle": "~4.0.0"
+    "imagemin-gifsicle": "~4.0.0",
+    "grunt-gh-pages": "~0.9.1"
   },
   "engines": {
     "node": ">=0.10.0"
