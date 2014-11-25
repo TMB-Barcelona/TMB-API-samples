@@ -1,0 +1,211 @@
+<!doctype html>
+<html class="no-js">
+	<head>
+		include "head.html"
+	</head>
+	<body>
+		<!--[if lt IE 10]>
+		<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+		<![endif]-->
+
+		<div class="container">
+
+			include "header.html"
+
+			<h2>Load WMS layer</h2>
+
+			<p>
+				This sample shows how to load a WMS layer. Passing layer name by GET parameter as <i><b>layer=layer_name</b></i> you can load it on map, e.g. <a href="./api_02_basic_wms_layer.html?layer=CARTO_TMB">?layer=CARTO_TMB</a>
+			</p>
+
+			<div id="map" class="map"></div>
+
+			<h4 class="text-muted">Source code:</h4>
+			<pre><code id="code_text" class="javascript"></code></pre>						
+
+            include "footer.html"
+
+
+
+		</div>
+
+		include "tail.html"
+
+		include "ganalytics.html"
+
+		<script>
+			var write_here_your_app_key = 'c1708a798d0c879002694a90b825937a';
+			var write_here_your_app_id = 'f7b34f42';
+		</script>
+
+		<script id="code">
+			'use strict';
+
+			var select = $('.selectfeatures').selectpicker({
+				style : 'btn-info',
+				size : 20
+			}).hide();
+
+			var emptySelector = function() {
+				$('.selectfeatures > option[value!=0]').remove();
+			};
+
+			/**
+			 * Get layer parameter from URL
+			 * @param key
+			 * @returns {*}
+			 */
+			var getURLParameters = function(key) {
+				var KEY = 0, VALUE = 1;
+				var onlyParameters = window.location.href.split('?')[1];
+				if ( typeof onlyParameters == "undefined") {
+					return null;
+				}
+				var parametersAsString = onlyParameters.split('&');
+				var parameters = {};
+				for (var pair = 0; pair < parametersAsString.length; pair++) {
+					var keyAndValue = parametersAsString[pair].split('=');
+					if (keyAndValue[KEY] == key) {
+						return keyAndValue[VALUE];
+					}
+				}
+				return null;
+			};
+
+			/**
+			 *
+			 * @type {*[]}
+			 */
+			var layers = [new ol.layer.Tile({
+				source : new ol.source.TileWMS({
+					params : {
+						'LAYERS' : 'OI.OrthoimageCoverage',
+						'FORMAT' : 'image/png'
+					},
+					url : 'http://www.ign.es/wms-inspire/pnoa-ma'
+				})
+			})];
+
+			/**
+			 *
+			 * @type {ol.Map}
+			 */
+			var map = new ol.Map({
+				layers : layers,
+				target : 'map',
+				view : new ol.View({
+					center : new ol.proj.transform([2.1574, 41.3987], "EPSG:4326", "EPSG:3857"),
+					projection : 'EPSG:3857',
+					zoom : 16
+				})
+			});
+
+			var nameLayer = getURLParameters('layer');
+
+			if (!nameLayer) {
+				nameLayer = 'GIS_METRO:VIEW_FT_ESTACIONS_LINIA';
+			};
+
+			/**
+			 * Function to get features
+			 * @param extent
+			 * @param resolution
+			 * @param projection
+			 */
+			var loaderFunction = function(extent, resolution, projection) {
+				var url = 'http://api.tmb.cat/api/v1/maps/wfs?app_key=' + write_here_your_app_key + '&app_id=' + write_here_your_app_id + '&' + 'service=WFS&' + 'version=1.1.0&request=GetFeature&typename=' + nameLayer + '&' + 'outputFormat=application/json' + '&srsname=EPSG:3857&bbox=' + extent.join(',') + ',EPSG:3857';
+				var getFeatures = $.ajax({
+					url: url,
+					dataType: 'json',
+					crossDomain: true
+				});
+
+				$.when(getFeatures).done(function(response, textStatus, xqHR) {
+					loadFeatures(response)
+				})
+			};
+
+			/**
+			 *
+			 * @type {ol.source.ServerVector}
+			 */
+			var vectorSource = new ol.source.ServerVector({
+				format : new ol.format.GeoJSON(),
+				loader : loaderFunction,
+				projection : 'EPSG:3857'
+			});
+
+			/**
+			 *
+			 * @param response
+			 */
+			var loadSelect = function(response) {
+
+				emptySelector();
+				for (var n in response.features) {
+					var feature = response.features[n];
+					select.append(new Option(feature.properties.CODI_ESTACIO + '-' + feature.properties.NOM_ESTACIO, feature.id));
+				}
+				select.selectpicker('refresh')
+			};
+
+			/**
+			 *
+			 * @param response
+			 */
+			var loadFeatures = function(response) {
+				vectorSource.addFeatures(vectorSource.readFeatures(response));
+				loadSelect(response);
+			};
+
+			var selectFeature = function(evt) {
+				var ALONE = 0;
+				var featureId = evt.currentTarget.selectedOptions[ALONE].value;
+				var feature = vectorSource.getFeatureById(featureId);
+				map.getView().setCenter(feature.getGeometry().getCoordinates());
+				map.getView().setZoom(19);
+			};
+
+			select.on('change', null, null, selectFeature);
+
+			/**
+			 *
+			 * @type {ol.style.Fill}
+			 */
+			var fill = new ol.style.Fill({
+				color : 'rgba(255,0,0,0.4)'
+			});
+
+			/**
+			 *
+			 * @type {ol.style.Stroke}
+			 */
+			var stroke = new ol.style.Stroke({
+				color : '#C90707',
+				width : 3
+			});
+
+			/**
+			 *
+			 * @type {ol.layer.Vector}
+			 */
+			var vector = new ol.layer.Vector({
+				source : vectorSource,
+				style : new ol.style.Style({
+					image : new ol.style.Circle({
+						fill : fill,
+						stroke : stroke,
+						radius : 5
+					}),
+					fill : fill,
+					stroke : stroke
+				})
+			});
+
+			map.addLayer(vector)
+		</script>
+
+		include "sourcecode.html"
+
+	</body>
+</html>
