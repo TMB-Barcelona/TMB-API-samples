@@ -1,37 +1,23 @@
 [
-    {
-        "title": "The map and the view",
-        "samples": [
-            {
-                "title": "A basic map",
-                "description": "Show the most basic way to create a map with two layers",
-                "url": "api_01_basic_map.html",
-                "thumbnail": "api_01_basic_map.png"
-            }
-        ]
-    },
-    {
-        "title": "The layers",
-        "samples": []
-    },
-    {
-        "title": "Data source and formats",
-        "samples": []
-    },
-    {
-        "title": "Vector layers",
-        "samples": []
-    },
-    {
-        "title": "Events, listeners and properties",
-        "samples": []
-    },
-    {
-        "title": "Overlays",
-        "samples": []
-    },
-    {
-        "title": "Controls and Interactions",
-        "samples": []
-    }
+	{
+		"title": "The map and the view",
+		"samples": [
+			{
+				"title": "A basic map",
+				"description": "Show the most basic way to create a map with two layers",
+				"url": "api_01_basic_map.html",
+				"thumbnail": "api_01_basic_map.png"
+			}
+		]
+	}, {
+		"title": "The layers",
+		"samples": [
+			{
+				"title": "WMS layer by GET ",
+				"description": "Add a WMS layer by GET parameter",
+				"url": "api_02_basic_wms_layer.html",
+				"thumbnail": "api_02_basic_wms_layer.png"
+			}
+		]
+	}
 ]
