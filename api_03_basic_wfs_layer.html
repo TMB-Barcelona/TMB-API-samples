@@ -45,11 +45,12 @@
 			<div id="map" class="map"></div>
 
 			<h4 class="text-muted">Source code:</h4>
-			<pre><code id="code_text" class="javascript"></code></pre>			
+			<pre><code id="code_text" class="javascript"></code></pre>						
 
             <div class="footer">
                 <p><a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">Code samples for The TMB API</span> by <a xmlns:cc="http://creativecommons.org/ns#" href="http://www.tmb.cat/" property="cc:attributionName" rel="cc:attributionURL">Transports Metropolitans de Barcelona</a> is derivated from <span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">Code samples for The Book of OpenLayers3</span> by <a xmlns:cc="http://creativecommons.org/ns#" href="https://github.com/acanimal/thebookofopenlayers3" property="cc:attributionName" rel="cc:attributionURL">Antonio Santiago</a> licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>..</p>
             </div>
+
 
 
 		</div>
@@ -79,6 +80,16 @@
 		</script>
 
 		<script id="code">
+			'use strict';
+
+			var select = $('.selectfeatures').selectpicker({
+				style : 'btn-info',
+				size : 20
+			}).hide();
+
+			var emptySelector = function() {
+				$('.selectfeatures > option[value!=0]').remove();
+			};
 
 			/**
 			 * Get layer parameter from URL
@@ -96,13 +107,16 @@
 				for (var pair = 0; pair < parametersAsString.length; pair++) {
 					var keyAndValue = parametersAsString[pair].split('=');
 					if (keyAndValue[KEY] == key) {
-						console.log(keyAndValue[VALUE]);
 						return keyAndValue[VALUE];
 					}
 				}
 				return null;
 			};
 
+			/**
+			 *
+			 * @type {*[]}
+			 */
 			var layers = [new ol.layer.Tile({
 				source : new ol.source.TileWMS({
 					params : {
@@ -113,36 +127,123 @@
 				})
 			})];
 
+			/**
+			 *
+			 * @type {ol.Map}
+			 */
 			var map = new ol.Map({
 				layers : layers,
 				target : 'map',
 				view : new ol.View({
 					center : new ol.proj.transform([2.1574, 41.3987], "EPSG:4326", "EPSG:3857"),
 					projection : 'EPSG:3857',
-					zoom : 13
+					zoom : 16
 				})
 			});
 
 			var nameLayer = getURLParameters('layer');
 
 			if (!nameLayer) {
-				nameLayer = 'XARXA_METRO';
+				nameLayer = 'GIS_METRO:VIEW_FT_ESTACIONS_LINIA';
 			};
 
-			var overlay = new ol.layer.Tile({
-				source : new ol.source.TileWMS({
-					params : {
-						'LAYERS' : nameLayer,
-						'FORMAT' : 'image/png',
-						'app_key' : write_here_your_app_key,
-						'app_id' : write_here_your_app_id,
-						'name' : nameLayer
-					},
-					url : 'http://api.tmb.cat/v1/maps/wms'
-				})
-			})
+			/**
+			 * Function to get features
+			 * @param extent
+			 * @param resolution
+			 * @param projection
+			 */
+			var loaderFunction = function(extent, resolution, projection) {
+				var url = 'http://api.tmb.cat/api/v1/maps/wfs?app_key=' + write_here_your_app_key + '&app_id=' + write_here_your_app_id + '&' + 'service=WFS&' + 'version=1.1.0&request=GetFeature&typename=' + nameLayer + '&' + 'outputFormat=application/json' + '&srsname=EPSG:3857&bbox=' + extent.join(',') + ',EPSG:3857';
+				var getFeatures = $.ajax({
+					url: url,
+					dataType: 'json',
+					crossDomain: true
+				});
 
-			map.addLayer(overlay);
+				$.when(getFeatures).done(function(response, textStatus, xqHR) {
+					loadFeatures(response)
+				})
+			};
+
+			/**
+			 *
+			 * @type {ol.source.ServerVector}
+			 */
+			var vectorSource = new ol.source.ServerVector({
+				format : new ol.format.GeoJSON(),
+				loader : loaderFunction,
+				projection : 'EPSG:3857'
+			});
+
+			/**
+			 *
+			 * @param response
+			 */
+			var loadSelect = function(response) {
+
+				emptySelector();
+				for (var n in response.features) {
+					var feature = response.features[n];
+					select.append(new Option(feature.properties.CODI_ESTACIO + '-' + feature.properties.NOM_ESTACIO, feature.id));
+				}
+				select.selectpicker('refresh')
+			};
+
+			/**
+			 *
+			 * @param response
+			 */
+			var loadFeatures = function(response) {
+				vectorSource.addFeatures(vectorSource.readFeatures(response));
+				loadSelect(response);
+			};
+
+			var selectFeature = function(evt) {
+				var ALONE = 0;
+				var featureId = evt.currentTarget.selectedOptions[ALONE].value;
+				var feature = vectorSource.getFeatureById(featureId);
+				map.getView().setCenter(feature.getGeometry().getCoordinates());
+				map.getView().setZoom(19);
+			};
+
+			select.on('change', null, null, selectFeature);
+
+			/**
+			 *
+			 * @type {ol.style.Fill}
+			 */
+			var fill = new ol.style.Fill({
+				color : 'rgba(255,0,0,0.4)'
+			});
+
+			/**
+			 *
+			 * @type {ol.style.Stroke}
+			 */
+			var stroke = new ol.style.Stroke({
+				color : '#C90707',
+				width : 3
+			});
+
+			/**
+			 *
+			 * @type {ol.layer.Vector}
+			 */
+			var vector = new ol.layer.Vector({
+				source : vectorSource,
+				style : new ol.style.Style({
+					image : new ol.style.Circle({
+						fill : fill,
+						stroke : stroke,
+						radius : 5
+					}),
+					fill : fill,
+					stroke : stroke
+				})
+			});
+
+			map.addLayer(vector)
 		</script>
 
 		<script>

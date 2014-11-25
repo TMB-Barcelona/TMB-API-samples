@@ -17,7 +17,13 @@
 				"description": "Add a WMS layer by GET parameter",
 				"url": "api_02_basic_wms_layer.html",
 				"thumbnail": "api_02_basic_wms_layer.png"
-			}
+			},
+			{
+				"title": "WFS layer by GET ",
+				"description": "Add a WFS layer by GET parameter",
+				"url": "api_03_basic_wfs_layer.html",
+				"thumbnail": "api_03_basic_wfs_layer.png"
+			}			
 		]
 	}
 ]
