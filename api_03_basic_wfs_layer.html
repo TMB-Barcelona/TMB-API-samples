@@ -36,20 +36,26 @@
 			    </div>
 			</div>
 
-			<h2>Load WMS layer</h2>
+			<h2>Load WFS layer</h2>
 
 			<p>
-				This sample shows how to load a WMS layer. Passing layer name by GET parameter as <i><b>layer=layer_name</b></i> you can load it on map, e.g. <a href="./api_02_basic_wms_layer.html?layer=CARTO_TMB">?layer=CARTO_TMB</a>
+				This sample shows how to load a WFS layer. Passing layer name by GET parameter as <i><b>layer=layer_name</b></i> you can load it on map, e.g. <a href="./api_03_basic_wfs_layer.html?layer=GIS_CARTO:VIEW_FT_DISTRICTES">?layer=GIS_CARTO:VIEW_FT_DISTRICTES</a>
 			</p>
 
-			<div id="map" class="map"></div>
+			<div class="row">
+				<div id="map" class="map"></div>
+				<select class="selectfeatures">
+					<option value="0">CODI-NOM</option>
+				</select>
+			</div>
 
 			<h4 class="text-muted">Source code:</h4>
-			<pre><code id="code_text" class="javascript"></code></pre>						
+			<pre><code id="code_text" class="javascript"></code></pre>									
 
             <div class="footer">
                 <p><a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">Code samples for The TMB API</span> by <a xmlns:cc="http://creativecommons.org/ns#" href="http://www.tmb.cat/" property="cc:attributionName" rel="cc:attributionURL">Transports Metropolitans de Barcelona</a> is derivated from <span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">Code samples for The Book of OpenLayers3</span> by <a xmlns:cc="http://creativecommons.org/ns#" href="https://github.com/acanimal/thebookofopenlayers3" property="cc:attributionName" rel="cc:attributionURL">Antonio Santiago</a> licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>..</p>
             </div>
+
 
 
 
@@ -115,7 +121,7 @@
 
 			/**
 			 *
-			 * @type {*[]}
+			 * @type {[ol.layer.*]}
 			 */
 			var layers = [new ol.layer.Tile({
 				source : new ol.source.TileWMS({
@@ -154,16 +160,21 @@
 			 * @param projection
 			 */
 			var loaderFunction = function(extent, resolution, projection) {
-				var url = 'http://api.tmb.cat/api/v1/maps/wfs?app_key=' + write_here_your_app_key + '&app_id=' + write_here_your_app_id + '&' + 'service=WFS&' + 'version=1.1.0&request=GetFeature&typename=' + nameLayer + '&' + 'outputFormat=application/json' + '&srsname=EPSG:3857&bbox=' + extent.join(',') + ',EPSG:3857';
+				var url = 'http://api.tmb.cat/v1/maps/wfs?app_key=' + write_here_your_app_key + 
+					'&app_id=' + write_here_your_app_id + 
+					'&service=WFS&version=1.1.0&request=GetFeature&' + 
+					'typename=' +  nameLayer + 
+					'&outputFormat=application/json&srsname=EPSG:3857&' + 
+					'bbox=' + extent.join(',') + ',EPSG:3857';
+					
 				var getFeatures = $.ajax({
-					url: url,
-					dataType: 'json',
-					crossDomain: true
+					url : url,
+					dataType : 'json'
 				});
 
 				$.when(getFeatures).done(function(response, textStatus, xqHR) {
-					loadFeatures(response)
-				})
+					loadFeatures(response);
+				});
 			};
 
 			/**
@@ -185,9 +196,14 @@
 				emptySelector();
 				for (var n in response.features) {
 					var feature = response.features[n];
-					select.append(new Option(feature.properties.CODI_ESTACIO + '-' + feature.properties.NOM_ESTACIO, feature.id));
+					if (feature.properties.CODI_ESTACIO && feature.properties.NOM_ESTACIO) {
+						select.append(new Option(feature.properties.CODI_ESTACIO + '-' + feature.properties.NOM_ESTACIO, feature.id));	
+					} else {
+						select.selectpicker('hide');
+						break;
+					}
 				}
-				select.selectpicker('refresh')
+				select.selectpicker('refresh');
 			};
 
 			/**
@@ -200,8 +216,8 @@
 			};
 
 			var selectFeature = function(evt) {
-				var ALONE = 0;
-				var featureId = evt.currentTarget.selectedOptions[ALONE].value;
+				var FIRST = 0;
+				var featureId = evt.currentTarget.selectedOptions[FIRST].value;
 				var feature = vectorSource.getFeatureById(featureId);
 				map.getView().setCenter(feature.getGeometry().getCoordinates());
 				map.getView().setZoom(19);
@@ -243,7 +259,7 @@
 				})
 			});
 
-			map.addLayer(vector)
+			map.addLayer(vector);
 		</script>
 
 		<script>
