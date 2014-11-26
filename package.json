@@ -12,7 +12,6 @@
     "grunt-contrib-connect": "~0.7.1",
     "grunt-contrib-clean": "~0.5.0",
     "grunt-contrib-htmlmin": "~0.2.0",
-    "grunt-bower-install": "~1.4.0",
     "grunt-contrib-imagemin": "^0.7.1",
     "grunt-contrib-watch": "~0.6.1",
     "grunt-rev": "~0.1.0",
@@ -27,7 +26,8 @@
     "jshint-stylish": "~0.1.5",
     "grunt-includes": "^0.4.5",
     "imagemin-gifsicle": "~4.0.0",
-    "grunt-gh-pages": "~0.9.1"
+    "grunt-gh-pages": "~0.9.1",
+    "grunt-wiredep": "~2.0.0"
   },
   "engines": {
     "node": ">=0.10.0"
