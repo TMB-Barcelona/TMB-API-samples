@@ -1,0 +1,6 @@
+.project
+.tmp/
+app/
+bower_components/
+dist/
+node_modules/
