@@ -101,10 +101,10 @@ You can create a thumbnail for your sample. Get your favorite image for the samp
 
 ## Commit and Push your changes
 
-All your changes must be realized in your branch `feature/a_cool_feature_descriptive_title`. After finish this, you must merge it to default branch (develop in this case).
+All your changes must be realized in your branch `feature/a_cool_feature_descriptive_title`. After finish, you must merge it to the default branch (*develop* in this case).
 
 
-```bash
+```
 git checkout develop
 
 git merge --no-ff feature/a_cool_feature_descriptive_title
@@ -113,6 +113,17 @@ git branch -d feature/a_cool_feature_descriptive_title
 
 git push origin develop
 ```
+
+## Create *dist* folder to deploy
+
+`grunt build` creates a *dist* folder with your samples web ready to deploy in your favorite web server.
+
+> Warning: By unsolved problems in `grunt build` task, after the execution of this you must copy manually the `app/images` folder into `dist` folder.
+
+## Publish samples in gh-pages
+
+**TODO**
+
 
 <hr/>
 
