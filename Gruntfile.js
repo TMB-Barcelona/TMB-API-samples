@@ -124,6 +124,15 @@ module.exports = function (grunt) {
                     ]
                 }]
             },
+            gist: {
+                files: [{
+                    dot: true,
+                    src: [
+                        '.tmp',
+                        '<%= config.gist %>/*'
+                    ]
+                }]
+            },
             server: '.tmp'
         },
 
@@ -264,7 +273,7 @@ module.exports = function (grunt) {
             },
             gist: {
                 cwd: '<%= config.tpl %>',
-                src: ['*.html'],
+                src: ['*_gist.html'],
                 dest: '<%= config.gist %>',
                 options: {
                     includePath: '<%= config.tpl %>/includes/gist'
@@ -420,6 +429,7 @@ module.exports = function (grunt) {
     ]);
 
     grunt.registerTask('gist', [
+        'clean:gist',
         'includes:gist'
     ])
 };
