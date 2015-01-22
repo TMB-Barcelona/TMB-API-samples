@@ -2,6 +2,8 @@ app/*.html
 !app/404.html
 node_modules
 dist
+gist
+!app_tpl/includes/gist
 .tmp
 .sass-cache
 bower_components
