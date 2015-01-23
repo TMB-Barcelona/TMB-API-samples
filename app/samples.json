@@ -1,29 +1,35 @@
 [
-	{
-		"title": "The map and the view",
-		"samples": [
-			{
-				"title": "A basic map",
-				"description": "Show the most basic way to create a map with two layers",
-				"url": "api_01_basic_map.html",
-				"thumbnail": "api_01_basic_map.png"
-			}
-		]
-	}, {
-		"title": "The layers",
-		"samples": [
-			{
-				"title": "WMS layer by GET ",
-				"description": "Add a WMS layer by GET parameter",
-				"url": "api_02_basic_wms_layer.html",
-				"thumbnail": "api_02_basic_wms_layer.png"
-			},
-			{
-				"title": "WFS layer by GET ",
-				"description": "Add a WFS layer by GET parameter",
-				"url": "api_03_basic_wfs_layer.html",
-				"thumbnail": "api_03_basic_wfs_layer.png"
-			}			
-		]
-	}
+  {
+    "title": "The map and the view",
+    "samples": [
+      {
+        "title": "A basic map",
+        "description": "Show the most basic way to create a map with two layers",
+        "url": "api_01_basic_map.html",
+        "thumbnail": "api_01_basic_map.png"
+      },
+      {
+        "title": "A basic map with GetFeatureInfo",
+        "description": "Show the most basic way to create a map with GetFeatureInfo control",
+        "url": "sample_01_basic_map_info_gist.html",
+        "thumbnail": "sample_01_basic_map_info_gist.png"
+      }
+    ]
+  }, {
+  "title": "The layers",
+  "samples": [
+    {
+      "title": "WMS layer by GET ",
+      "description": "Add a WMS layer by GET parameter",
+      "url": "api_02_basic_wms_layer.html",
+      "thumbnail": "api_02_basic_wms_layer.png"
+    },
+    {
+      "title": "WFS layer by GET ",
+      "description": "Add a WFS layer by GET parameter",
+      "url": "api_03_basic_wfs_layer.html",
+      "thumbnail": "api_03_basic_wfs_layer.png"
+    }
+  ]
+}
 ]
