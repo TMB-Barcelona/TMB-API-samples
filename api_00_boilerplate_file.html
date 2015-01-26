@@ -36,13 +36,18 @@
                 </div>
             </div>
 
-            <div id="messageContainer" class="row">
-                <div id="message" class="col-md-12 alert alert-info text-center" role="alert">
-                    Loading <code>samples.json</code> file...
-                </div>
-            </div>
+            <h2>Sample Title</h2>
 
-            <div id="samples-container" class="marketing"></div>
+            <p>Sample Description</p>
+
+			<!-- HERE YOUR HTML e.g.: map, select, button... -->
+			
+            <div id="map" class="map"></div>
+            
+            <!-- -->
+
+            <h4 class="text-muted">Source code:</h4>
+            <pre><code id="code_text" class="javascript"></code></pre>
 
             <div class="footer">
                 <p><a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">Code samples for The TMB API</span> by <a xmlns:cc="http://creativecommons.org/ns#" href="http://www.tmb.cat/" property="cc:attributionName" rel="cc:attributionURL">Transports Metropolitans de Barcelona</a> is derivated from <span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">Code samples for The Book of OpenLayers3</span> by <a xmlns:cc="http://creativecommons.org/ns#" href="https://github.com/acanimal/thebookofopenlayers3" property="cc:attributionName" rel="cc:attributionURL">Antonio Santiago</a> licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>..</p>
@@ -57,8 +62,6 @@
         <!-- OpenLayers -->
         <script src="http://ol3js.org/en/master/build/ol.js"></script>
 
-        <script src="scripts/9d92c5a4.main.js"></script>
-
         <!-- Google Analytics -->
         <script>
           (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -69,6 +72,25 @@
           ga('create', 'Google analytics key', 'auto');
           ga('send', 'pageview');
 
+        </script>
+        
+        <script>
+        
+        	 // HERE YOUR JS INVISIBLE CODE e.g.: app_key...
+        	  
+        </script>
+        
+        <script id="code">
+        
+        	// HERE YOUR JS RUNNABLE CODE
+        	
+        </script>
+
+        <script>
+        	(function() {
+        		$('#code_text').text( $('#code').text() );
+            	hljs.initHighlightingOnLoad();
+        	})();
         </script>
 
     </body>
