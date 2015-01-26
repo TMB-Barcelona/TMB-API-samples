@@ -133,6 +133,14 @@ module.exports = function (grunt) {
                     ]
                 }]
             },
+            "gh-pages": {
+                files: [{
+                    dot: true,
+                    src: [
+                        '.grunt'
+                    ]
+                }]
+            },
             server: '.tmp'
         },
 
@@ -361,7 +369,7 @@ module.exports = function (grunt) {
         	options: {
         		base: 'dist',
         		message: 'Auto-generated gh-pages commit',
-        		push: false
+        		push: true
         	},
         	src: ['**/*']
         }
