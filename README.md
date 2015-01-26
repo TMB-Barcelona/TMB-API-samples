@@ -128,6 +128,20 @@ $ grunt ghpages
 
 This plugin makes a build and creates a folder in `<ROOT_DIRECTORY>/.grunt/grunt-gh-pages/gh-pages/src` with the dist files inside. The plugin push this folder to gh-pages repo in the GitHub account.
 
+## Create Simple Sample to Gist
+
+The sample file must be in the `app_tpl` folder like the API sample files. This file will be named with the `_gist.html` at the end of the name.
+
+The is a grunt task to generate the `dist` file:
+
+```
+$ grunt gist
+```
+
+This task creates a `gist` folder and save inside all the files with the `_gist` termination.
+
+If you execute the `build` task the simple samples will be used as API samples if you have configured all steps described before.
+
 
 <hr/>
 
