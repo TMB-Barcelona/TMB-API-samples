@@ -133,6 +133,14 @@ module.exports = function (grunt) {
                     ]
                 }]
             },
+            "gh-pages": {
+                files: [{
+                    dot: true,
+                    src: [
+                        '.grunt'
+                    ]
+                }]
+            },
             server: '.tmp'
         },
 
@@ -320,7 +328,7 @@ module.exports = function (grunt) {
                         '.htaccess',
                         'samples.json',
                         'data/*',
-                        'images/{,*/}*.webp',
+                        'images/{,*/}*.*',
                         '{,*/}*.html',
                         'styles/fonts/{,*/}*.*'
                     ]
@@ -360,8 +368,8 @@ module.exports = function (grunt) {
         'gh-pages': {
         	options: {
         		base: 'dist',
-        		message: 'Auto-generated commit',
-        		push: false
+        		message: 'Auto-generated gh-pages commit',
+        		push: true
         	},
         	src: ['**/*']
         }
@@ -423,7 +431,7 @@ module.exports = function (grunt) {
         'build'
     ]);
     
-    grunt.registerTask('gh-pages', [
+    grunt.registerTask('ghpages', [
     	'build',
     	'gh-pages'
     ]);

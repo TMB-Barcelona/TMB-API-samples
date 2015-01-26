@@ -10,3 +10,4 @@ bower_components
 test/bower_components
 .project
 .idea/
+.grunt/

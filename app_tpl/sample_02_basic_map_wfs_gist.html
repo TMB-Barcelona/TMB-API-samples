@@ -1,0 +1,179 @@
+<!doctype html>
+<html class="no-js">
+<head>
+    include "head.html"
+</head>
+<body>
+<!--[if lt IE 10]>
+<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+<![endif]-->
+
+<div class="container">
+
+    include "header.html"
+
+    <h2>Basic map with WFS petition</h2>
+
+    <p>This sample shows how to create a very basic map with a simple WFS petition load into the map the result from this one.</p>
+
+    <div id="map" class="map"></div>
+
+    <div id="info"></div>
+
+    include "text-muted.html"
+
+    include "footer.html"
+
+</div>
+
+include "tail.html"
+
+include "ganalytics.html"
+
+<script>
+    var write_here_your_app_key = 'd9905ec9b70bc6aca11e39be3cd0d856';
+    var write_here_your_app_id = 'df5c473f';
+</script>
+
+<script id="code">
+
+    'use strict';
+
+    /**
+     *
+     * @type {[ol.layer.*]}
+     */
+    var layers = [new ol.layer.Tile({
+        source : new ol.source.TileWMS({
+            params : {
+                'LAYERS' : 'OI.OrthoimageCoverage',
+                'FORMAT' : 'image/png'
+            },
+            url : 'http://www.ign.es/wms-inspire/pnoa-ma'
+        })
+    })];
+
+    /**
+     *
+     * @type {ol.Map}
+     */
+    var map = new ol.Map({
+        layers : layers,
+        target : 'map',
+        view : new ol.View({
+            center : new ol.proj.transform([2.1574, 41.3987], "EPSG:4326", "EPSG:3857"),
+            projection : 'EPSG:3857',
+            zoom : 16
+        })
+    });
+
+    /**
+     * Function to get features
+     * @param extent
+     * @param resolution
+     * @param projection
+     */
+    var loaderFunction = function(extent, resolution, projection) {
+        var url = 'http://api.tmb.cat/v1/maps/wfs?app_key=' + write_here_your_app_key +
+                '&app_id=' + write_here_your_app_id +
+                '&service=WFS&version=1.1.0&request=GetFeature&' +
+                'typename=TMB:ACCESSOS' +
+                '&outputFormat=application/json&srsname=EPSG:3857&' +
+                'bbox=' + extent.join(',') + ',EPSG:3857';
+
+        var getFeaturesRequest = new XMLHttpRequest();
+
+        getFeaturesRequest.onreadystatechange = function() {
+            if (getFeaturesRequest.readyState != 4 || getFeaturesRequest.status != 200) return;
+            loadFeatures(getFeaturesRequest.responseText);
+        };
+        getFeaturesRequest.overrideMimeType('application/json');
+        getFeaturesRequest.open('GET', url, true);
+
+        getFeaturesRequest.send();
+    };
+
+    /**
+     *
+     * @type {ol.source.ServerVector}
+     */
+    var vectorSource = new ol.source.ServerVector({
+        format : new ol.format.GeoJSON(),
+        loader : loaderFunction,
+        projection : 'EPSG:3857'
+    });
+
+    var info = document.getElementById('info');
+
+    /**
+     *
+     * @param response
+     */
+    var loadData = function(response) {
+
+        var list = document.createElement('ul');
+
+        for (var n in response.features) {
+            var feature = response.features[n];
+            var li = document.createElement('li');
+            li.innerHTML ='<span>' + feature.properties.CODI_ACCES + '-' + feature.properties.NOM_ACCES + '</span>';
+            list.appendChild(li);
+        };
+
+        info.innerHTML = "";
+        info.appendChild(list);
+    };
+
+    /**
+     *
+     * @param response
+     */
+    var loadFeatures = function(response) {
+        if (response === '') {
+            return;
+        }
+        vectorSource.addFeatures(vectorSource.readFeatures(response));
+        loadData(JSON.parse(response));
+    };
+
+    /**
+     *
+     * @type {ol.style.Fill}
+     */
+    var fill = new ol.style.Fill({
+        color : 'rgba(255,0,0,0.4)'
+    });
+
+    /**
+     *
+     * @type {ol.style.Stroke}
+     */
+    var stroke = new ol.style.Stroke({
+        color : '#C90707',
+        width : 3
+    });
+
+    /**
+     *
+     * @type {ol.layer.Vector}
+     */
+    var vector = new ol.layer.Vector({
+        source : vectorSource,
+        style : new ol.style.Style({
+            image : new ol.style.Circle({
+                fill : fill,
+                stroke : stroke,
+                radius : 5
+            }),
+            fill : fill,
+            stroke : stroke
+        })
+    });
+
+    map.addLayer(vector);
+</script>
+
+include "sourcecode.html"
+
+</body>
+</html>
