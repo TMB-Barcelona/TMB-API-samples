@@ -118,11 +118,15 @@ git push origin develop
 
 `grunt build` creates a *dist* folder with your samples web ready to deploy in your favorite web server.
 
-> Warning: By unsolved problems in `grunt build` task, after the execution of this you must copy manually the `app/images` folder into `dist` folder.
-
 ## Publish samples in gh-pages
 
-**TODO**
+To publish automagically your samples in the gh-pages repo you can use the grunt gh-pages plugin:
+
+```
+$ grunt ghpages
+```
+
+This plugin makes a build and creates a folder in `<ROOT_DIRECTORY>/.grunt/grunt-gh-pages/gh-pages/src` with the dist files inside. The plugin push this folder to gh-pages repo in the GitHub account.
 
 
 <hr/>
