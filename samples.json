@@ -29,6 +29,12 @@
       "description": "Add a WFS layer by GET parameter",
       "url": "api_03_basic_wfs_layer.html",
       "thumbnail": "api_03_basic_wfs_layer.png"
+    },
+    {
+      "title": "Simple WFS layer",
+      "description": "Add a WFS layer",
+      "url": "sample_02_basic_map_wfs_gist.html",
+      "thumbnail": "sample_02_basic_map_wfs_gist.png"
     }
   ]
 }
