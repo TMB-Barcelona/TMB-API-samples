@@ -19,7 +19,8 @@ module.exports = function (grunt) {
     var config = {
         app: 'app',
         tpl: 'app_tpl',
-        dist: 'dist'
+        dist: 'dist',
+        gist: 'gist'
     };
 
     // Define the configuration for all the tasks
@@ -120,6 +121,15 @@ module.exports = function (grunt) {
                         '.tmp',
                         '<%= config.dist %>/*',
                         '!<%= config.dist %>/.git*'
+                    ]
+                }]
+            },
+            gist: {
+                files: [{
+                    dot: true,
+                    src: [
+                        '.tmp',
+                        '<%= config.gist %>/*'
                     ]
                 }]
             },
@@ -259,6 +269,14 @@ module.exports = function (grunt) {
                 dest: '<%= config.app %>',
                 options: {
                     includePath: '<%= config.tpl %>/includes'
+                }
+            },
+            gist: {
+                cwd: '<%= config.tpl %>',
+                src: ['*_gist.html'],
+                dest: '<%= config.gist %>',
+                options: {
+                    includePath: '<%= config.tpl %>/includes/gist'
                 }
             }
         },
@@ -409,4 +427,9 @@ module.exports = function (grunt) {
     	'build',
     	'gh-pages'
     ]);
+
+    grunt.registerTask('gist', [
+        'clean:gist',
+        'includes:gist'
+    ])
 };

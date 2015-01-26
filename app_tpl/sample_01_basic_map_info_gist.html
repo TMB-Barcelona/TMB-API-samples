@@ -1,0 +1,91 @@
+<!doctype html>
+<html class="no-js">
+<head>
+    include "head.html"
+</head>
+<body>
+<!--[if lt IE 10]>
+<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+<![endif]-->
+
+<div class="container">
+
+    include "header.html"
+
+    <h2>Basic map with GetFeatureInfo</h2>
+
+    <p>This sample shows how to create a very basic map with two raster layers and with GetFeatureInfo control.</p>
+
+    <div id="map" class="map"></div>
+
+    <div id="info"></div>
+
+    include "text-muted.html"
+
+    include "footer.html"
+
+</div>
+
+include "tail.html"
+
+include "ganalytics.html"
+
+<script>
+    var write_here_your_app_key = 'd9905ec9b70bc6aca11e39be3cd0d856';
+    var write_here_your_app_id = 'df5c473f';
+</script>
+
+<script id="code">
+
+    var pnoa = new ol.layer.Tile({
+        source: new ol.source.TileWMS({
+            params: {
+                'LAYERS': 'OI.OrthoimageCoverage',
+                'FORMAT': 'image/png'
+            },
+            url: 'http://www.ign.es/wms-inspire/pnoa-ma'
+        })
+    });
+
+    var xarxa_metro = new ol.layer.Tile({
+        source: new ol.source.TileWMS({
+            params: {
+                'LAYERS': 'XARXA_METRO',
+                'FORMAT': 'image/png',
+                'app_key': write_here_your_app_key,
+                'app_id': write_here_your_app_id
+            },
+            url: 'http://api.tmb.cat/v1/maps/wms'
+        })
+    });
+    var layers = [
+        pnoa, xarxa_metro
+    ];
+
+    var map = new ol.Map({
+        layers: layers,
+        target: 'map',
+        view: new ol.View({
+            center: new ol.proj.transform([2.1574, 41.3987], "EPSG:4326", "EPSG:3857"),
+            projection: 'EPSG:3857',
+            zoom: 13
+        })
+    });
+
+    map.on('singleclick', function(evt) {
+        document.getElementById('info').innerHTML = '';
+        var viewResolution = map.getView().getResolution();
+        var url = xarxa_metro.getSource().getGetFeatureInfoUrl(
+                evt.coordinate, viewResolution, 'EPSG:3857',
+                {'INFO_FORMAT': 'text/html'});
+        if (url) {
+            document.getElementById('info').innerHTML =
+                    '<iframe seamless src="' + url + '"></iframe>';
+        }
+    });
+</script>
+
+include "sourcecode.html"
+
+</body>
+</html>

@@ -25,7 +25,7 @@
                     '	<div class="container">'+
                     '   <div class="row">'+
                     '	<div class="small" style="width: 240px;">'+ sample.description +'</div>'+
-                    '	<div class="small" style="width: 240px;"><strong><em>Chapter: '+ chapter.title +'</em></strong></div>'+
+                    '	<div class="small" style="width: 240px;"><strong><em>Section: '+ chapter.title +'</em></strong></div>'+
                     '	</div>'+
                     '	</div>'+
 					'</div>';
