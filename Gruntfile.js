@@ -320,7 +320,7 @@ module.exports = function (grunt) {
                         '.htaccess',
                         'samples.json',
                         'data/*',
-                        'images/{,*/}*.webp',
+                        'images/{,*/}*.*',
                         '{,*/}*.html',
                         'styles/fonts/{,*/}*.*'
                     ]
@@ -360,7 +360,7 @@ module.exports = function (grunt) {
         'gh-pages': {
         	options: {
         		base: 'dist',
-        		message: 'Auto-generated commit',
+        		message: 'Auto-generated gh-pages commit',
         		push: false
         	},
         	src: ['**/*']
