@@ -41,31 +41,38 @@ include "ganalytics.html"
 
     'use strict';
 
+    var SELECTED = 0;
+
+    var pnoa = new ol.layer.Tile({
+        source: new ol.source.TileWMS({
+            params: {
+                'LAYERS': 'OI.OrthoimageCoverage',
+                'FORMAT': 'image/png'
+            },
+            url: 'http://www.ign.es/wms-inspire/pnoa-ma'
+        })
+    });
+
+    var xarxa_metro_source = new ol.source.TileWMS({
+        params: {
+            'LAYERS': 'XARXA_METRO',
+            'FORMAT': 'image/png',
+            'app_key': write_here_your_app_key,
+            'app_id': write_here_your_app_id
+        },
+        url: 'http://api.tmb.cat/v1/maps/wms'
+    });
+
+    var xarxa_metro = new ol.layer.Tile({
+        source: xarxa_metro_source
+    });
+
     /**
      *
      * @type {[ol.layer.*]}
      */
     var layers = [
-        new ol.layer.Tile({
-            source: new ol.source.TileWMS({
-                params: {
-                    'LAYERS': 'OI.OrthoimageCoverage',
-                    'FORMAT': 'image/png'
-                },
-                url: 'http://www.ign.es/wms-inspire/pnoa-ma'
-            })
-        }),
-        new ol.layer.Tile({
-            source: new ol.source.TileWMS({
-                params: {
-                    'LAYERS': 'XARXA_METRO',
-                    'FORMAT': 'image/png',
-                    'app_key': write_here_your_app_key,
-                    'app_id': write_here_your_app_id
-                },
-                url: 'http://api.tmb.cat/v1/maps/wms'
-            })
-        })
+        pnoa, xarxa_metro
     ];
 
     var map = new ol.Map({
@@ -80,7 +87,7 @@ include "ganalytics.html"
 
     /**
      * Function to get features
-     * @param callback, function receives the reponse
+     * @param callback, function receives the response
      */
     var getDataFeatures = function(callback) {
         var url = 'http://api.tmb.cat/v1/maps/wfs?app_key=' + write_here_your_app_key +
@@ -101,13 +108,24 @@ include "ganalytics.html"
         getFeaturesRequest.send();
     };
 
+    var select = document.getElementById('selectfeatures');
+
+    var onClickSelector = function(evt) {
+
+        var id_linia = evt.currentTarget.selectedOptions[SELECTED].value;
+        xarxa_metro_source.updateParams({
+            'CQL_FILTER': 'ID_LINIA=' + id_linia
+        })
+    };
+
+    select.addEventListener('change', onClickSelector);
     /**
      * Function to load data from WFS into HTML Select control
      * @param response
      */
     var loadData = function(response) {
 
-        var select = document.getElementById('selectfeatures')
+
         for (var n in response.features) {
             var feature = response.features[n];
             select.appendChild(new Option(feature.properties.CODI_LINIA + ' - ' + feature.properties.NOM_LINIA, feature.properties.ID_LINIA));
