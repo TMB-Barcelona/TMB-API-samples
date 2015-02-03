@@ -35,6 +35,12 @@
       "description": "Add a WFS layer",
       "url": "sample_02_basic_map_wfs_gist.html",
       "thumbnail": "sample_02_basic_map_wfs_gist.png"
+    },
+    {
+      "title": "WFS selector and WMS layer filter by",
+      "description": "A selector populated with WFS data filters a WMS layer",
+      "url": "sample_03_basic_map_geocode_gist.html",
+      "thumbnail": "sample_03_basic_map_geocode_gist.png"
     }
   ]
 }
