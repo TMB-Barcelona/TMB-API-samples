@@ -36,9 +36,9 @@
         </div>
     </div>
 
-    <h2>Basic map with WFS petition</h2>
+    <h2>Map with WFS + WMS chainned calls</h2>
 
-    <p>This sample shows how to create a very basic map with a simple WFS petition that loads into the map the result from this petition.</p>
+    <p>This sample shows how to "go and filter" a WMS layer based on data retrieved from a WFS petition.</p>
 
     <div id="map" class="map"></div>
 
@@ -83,11 +83,11 @@
 
     'use strict';
 
-    var SELECTED = 0;
+    var selectedIndex = 0;
 
     var features = [];
 
-    var pnoa = new ol.layer.Tile({
+    var baseLayer = new ol.layer.Tile({
         source: new ol.source.TileWMS({
             params: {
                 'LAYERS': 'OI.OrthoimageCoverage',
@@ -97,9 +97,10 @@
         })
     });
 
+	// split layer source definition in order to change layer filter dinamically later on.
     var xarxa_metro_source = new ol.source.TileWMS({
         params: {
-            'LAYERS': 'LINIES_METRO',
+            'LAYERS': 'TMB:XARXA_METRO',
             'FORMAT': 'image/png',
             'app_key': write_here_your_app_key,
             'app_id': write_here_your_app_id
@@ -107,16 +108,12 @@
         url: 'http://api.tmb.cat/v1/maps/wms'
     });
 
-    var xarxa_metro = new ol.layer.Tile({
+    var overlayLayer = new ol.layer.Tile({
         source: xarxa_metro_source
     });
 
-    /**
-     *
-     * @type {[ol.layer.*]}
-     */
     var layers = [
-        pnoa, xarxa_metro
+        baseLayer, overlayLayer
     ];
 
     var map = new ol.Map({
@@ -130,14 +127,16 @@
     });
 
     /**
-     * Function to get features
+     * Function to get features: Linies Metro combobox
      * @param callback, function receives the response
      */
     var getDataFeatures = function(callback) {
-        var url = 'http://api.tmb.cat/v1/maps/wfs?app_key=' + write_here_your_app_key +
+        var url = 'http://api.tmb.cat/v1/maps/wfs?' + 
+                'app_key=' + write_here_your_app_key +
                 '&app_id=' + write_here_your_app_id +
-                '&service=WFS&version=1.1.0&request=GetFeature&' +
-                'typename=TMB:LINIES_METRO' +
+                '&service=WFS&version=1.1.0&request=GetFeature' +
+				'&sortBy=CODI_LINIA' +
+                '&typename=TMB:LINIES_METRO' +
                 '&outputFormat=application/json&srsname=EPSG:3857';
 
         var getFeaturesRequest = new XMLHttpRequest();
@@ -154,14 +153,15 @@
 
     var select = document.getElementById('selectfeatures');
 
+	// Combo click event: Center + Filter info
     var onClickSelector = function(evt) {
 
-        var id_linia = evt.currentTarget.selectedOptions[SELECTED].value;
+        var codi_linia = evt.currentTarget.selectedOptions[selectedIndex].value;
         var bbox = null;
 
         for (var n in features) {
             var feature = features[n]
-            if (feature.properties['ID_LINIA'] == id_linia) {
+            if (feature.properties['CODI_LINIA'] == codi_linia) {
                 if (feature.geometry.type == 'LineString') {
                     var geom = new ol.geom.LineString(feature.geometry.coordinates);
                     bbox = geom.getExtent();
@@ -170,7 +170,7 @@
         }
 
         xarxa_metro_source.updateParams({
-            'CQL_FILTER': 'ID_LINIA=' + id_linia,
+            'CQL_FILTER': 'CODI_LINIA=' + codi_linia,
             'BBOX': bbox.join(',')
         })
 
@@ -187,10 +187,11 @@
         features = response.features;
         for (var n in features) {
             var feature = features[n];
-            select.appendChild(new Option(feature.properties.CODI_LINIA + ' - ' + feature.properties.NOM_LINIA, feature.properties.ID_LINIA));
+            select.appendChild(new Option(feature.properties.NOM_LINIA + ' - ' + feature.properties.DESC_LINIA, feature.properties.CODI_LINIA));
         }
     };
 
+	// load select control on load
     getDataFeatures(loadData);
 
 </script>
