@@ -43,5 +43,15 @@
       "thumbnail": "sample_03_basic_map_geocode_gist.png"
     }
   ]
+}, {
+  "title": "Timer",
+  "samples": [
+    {
+      "title": "Playing with Time as variable",
+      "description": "The page reloading itself every 10 seconds loading new data",
+      "url": "sample_04_autoreload_gist.html",
+      "thumbnail": "sample_04_autoreload_gist.png"
+    }
+  ]
 }
 ]

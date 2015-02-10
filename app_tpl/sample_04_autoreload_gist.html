@@ -1,0 +1,157 @@
+<!doctype html>
+<html class="no-js">
+<head>
+    include "head.html"
+</head>
+<body>
+<!--[if lt IE 10]>
+<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+<![endif]-->
+
+<div class="container">
+
+    include "header.html"
+
+    <h2>Playing with Time as variable</h2>
+
+    <p>The page reloading itself every 10 seconds loading new data</p>
+
+    <div id="map" class="map"></div>
+
+    <div class="btn-group" role="group" aria-label="...">
+        <button id="stop" type="button" class="btn btn-default">Stop</button>
+        <button id="play" type="button" class="btn btn-default">Play</button>
+        <!--button type="button" class="btn btn-default">Right</button-->
+    </div>
+    <!-- -->
+
+    include "text-muted.html"
+
+    include "footer.html"
+
+</div>
+
+include "tail.html"
+
+include "ganalytics.html"
+
+<script>
+    var write_here_your_app_key = 'd9905ec9b70bc6aca11e39be3cd0d856';
+    var write_here_your_app_id = 'df5c473f';
+</script>
+
+<script id="code">
+
+    var baseLayer = new ol.layer.Tile({
+        style: 'Road',
+        source: new ol.source.MapQuest({layer: 'osm'})
+    });
+
+    var map = new ol.Map({
+        layers: [
+            baseLayer
+        ],
+        target: 'map',
+        view: new ol.View({
+            center: new ol.proj.transform([2.1574, 41.3987], "EPSG:4326", "EPSG:3857"),
+            projection: 'EPSG:3857',
+            zoom: 16
+        })
+    });
+
+    var nameLayer = 'TMB:PARADES_ACTIVES';
+    var intervalID = 0;
+    var intervalFunc = null;
+
+    var onPlay = function() {
+        intervalFunc();
+        intervalID = setInterval(intervalFunc, 10000);
+    };
+
+    var onStop = function() {
+        clearInterval(intervalID);
+        intervalID = 0;
+    };
+
+    document.getElementById('stop').addEventListener('click', onStop);
+    document.getElementById('play').addEventListener('click', onPlay);
+
+    /**
+     * Function to get features
+     * @param extent
+     * @param resolution
+     * @param projection
+     */
+    var loaderFunction = function() {
+        var url = 'http://api.tmb.cat/v1/maps/wfs?app_key=' + write_here_your_app_key +
+                '&app_id=' + write_here_your_app_id +
+                '&service=WFS&version=1.1.0&request=GetFeature&' +
+                'typename=' +  nameLayer +
+                '&outputFormat=application/json&srsname=EPSG:3857';
+
+        var getFeaturesRequest = new XMLHttpRequest();
+
+        getFeaturesRequest.onreadystatechange = function() {
+            if (getFeaturesRequest.readyState != 4 || getFeaturesRequest.status != 200) return;
+            loadFeatures(JSON.parse(getFeaturesRequest.responseText));
+        };
+        getFeaturesRequest.overrideMimeType('application/json');
+
+        intervalFunc = function() {
+            getFeaturesRequest.open('GET', url, true);
+            getFeaturesRequest.send();
+        };
+        if (intervalID === 0) {
+            intervalFunc();
+            intervalID = setInterval(intervalFunc, 10000);
+        }
+    };
+
+    /**
+     *
+     * @type {ol.source.ServerVector}
+     */
+    var vectorSource = new ol.source.ServerVector({
+        format : new ol.format.GeoJSON(),
+        loader : loaderFunction,
+        projection : 'EPSG:3857',
+        strategy: ol.loadingstrategy.all
+    });
+
+    /**
+     *
+     * @param response
+     */
+    var loadFeatures = function(response) {
+        vectorSource.clear(true);
+        vectorSource.addFeatures(vectorSource.readFeatures(response));
+    };
+
+    /**
+     *
+     * @type {ol.layer.Vector}
+     */
+    var vector = new ol.layer.Vector({
+        source : vectorSource,
+        style : new ol.style.Style({
+            image : new ol.style.Circle({
+                fill : new ol.style.Fill({
+                    color : 'rgba(255,0,0,0.4)'
+                }),
+                stroke : new ol.style.Stroke({
+                    color : '#C90707',
+                    width : 3
+                }),
+                radius : 5
+            })
+        })
+    });
+
+    map.addLayer(vector);
+
+</script>
+
+include "sourcecode.html"
+
+</body>
+</html>
