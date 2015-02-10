@@ -117,6 +117,10 @@ include "ganalytics.html"
         var codi_linia = evt.currentTarget.selectedOptions[selectedIndex].value;
         var bbox = null;
 
+        if (codi_linia === '0') {
+            return;
+        }
+
         for (var n in features) {
             var feature = features[n]
             if (feature.properties['CODI_LINIA'] == codi_linia) {
@@ -134,7 +138,7 @@ include "ganalytics.html"
         xarxa_metro_source.updateParams({
             'CQL_FILTER': 'CODI_LINIA=' + codi_linia,
             'BBOX': bbox.join(',')
-        })
+        });
 
         map.getView().fitExtent(bbox, map.getSize());
     };
