@@ -162,10 +162,14 @@
         for (var n in features) {
             var feature = features[n]
             if (feature.properties['CODI_LINIA'] == codi_linia) {
+                var geom;
                 if (feature.geometry.type == 'LineString') {
-                    var geom = new ol.geom.LineString(feature.geometry.coordinates);
-                    bbox = geom.getExtent();
+                    geom = new ol.geom.LineString(feature.geometry.coordinates);
+                } else if (feature.geometry.type == 'MultiLineString') {
+                    geom = new ol.geom.MultiLineString(feature.geometry.coordinates);
                 }
+                bbox = geom.getExtent();
+                break;
             }
         }
 
