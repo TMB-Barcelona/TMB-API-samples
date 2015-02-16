@@ -23,6 +23,10 @@ module.exports = function (grunt) {
         gist: 'gist'
     };
 
+    var pass = grunt.file.readJSON('pass.json');
+
+    console.log(pass);
+
     // Define the configuration for all the tasks
     grunt.initConfig({
 
@@ -363,15 +367,63 @@ module.exports = function (grunt) {
                 'svgmin'
             ]
         },
-        
+
         // Run to create and push gh-pages
         'gh-pages': {
-        	options: {
-        		base: 'dist',
-        		message: 'Auto-generated gh-pages commit',
-        		push: true
-        	},
-        	src: ['**/*']
+            options: {
+                base: 'dist',
+                message: 'Auto-generated gh-pages commit',
+                push: true
+            },
+            src: ['**/*']
+        },
+
+        // Replace the local with TMB Github app_key and app_id
+        'replace': {
+            dist: {
+                options: {
+                    patterns: [
+                        {
+                            match: /#app_key_here/g,
+                            replacement: pass.github.app_key
+                        },
+                        {
+                            match: /#app_id_here/g,
+                            replacement: pass.github.app_id
+                        },
+                    ]
+                },
+                files: [
+                    {
+                        expand: true,
+                        flatten: true,
+                        src: ['<%= config.tpl %>/scripts/auth.js'],
+                        dest: '.tmp/concat/scripts/'
+                    }
+                ]
+            },
+            local: {
+                options: {
+                    patterns: [
+                        {
+                            match: /#app_key_here/g,
+                            replacement: pass.local.app_key
+                        },
+                        {
+                            match: /#app_id_here/g,
+                            replacement: pass.local.app_id
+                        },
+                    ]
+                },
+                files: [
+                    {
+                        expand: true,
+                        flatten: true,
+                        src: ['<%= config.tpl %>/scripts/auth.js'],
+                        dest: '<%= config.app %>/scripts/'
+                    }
+                ]
+            }
         }
     });
 
@@ -384,6 +436,7 @@ module.exports = function (grunt) {
             'clean:server',
             'concurrent:server',
             'autoprefixer',
+            'replace:local',
             'connect:livereload',
             'watch'
         ]);
@@ -416,6 +469,7 @@ module.exports = function (grunt) {
         'concurrent:dist',
         'autoprefixer',
         'concat',
+        'replace:dist',
         'cssmin',
         'uglify',
         'copy:dist',
@@ -430,14 +484,14 @@ module.exports = function (grunt) {
         'test',
         'build'
     ]);
-    
+
     grunt.registerTask('ghpages', [
-    	'build',
-    	'gh-pages'
+        'build',
+        'gh-pages'
     ]);
 
     grunt.registerTask('gist', [
         'clean:gist',
         'includes:gist'
-    ])
+    ]);
 };
