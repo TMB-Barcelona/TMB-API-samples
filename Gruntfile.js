@@ -25,8 +25,6 @@ module.exports = function (grunt) {
 
     var pass = grunt.file.readJSON('pass.json');
 
-    console.log(pass);
-
     // Define the configuration for all the tasks
     grunt.initConfig({
 
@@ -288,7 +286,7 @@ module.exports = function (grunt) {
                 src: ['*_gist.html'],
                 dest: '<%= config.gist %>',
                 options: {
-                    includePath: '<%= config.tpl %>/includes/gist'
+                    includePath: '.tmp/includes/gist'
                 }
             }
         },
@@ -350,6 +348,13 @@ module.exports = function (grunt) {
                 cwd: '<%= config.app %>/styles',
                 dest: '.tmp/styles/',
                 src: '{,*/}*.css'
+            },
+            gist: {
+                expand: true,
+                dot: true,
+                cwd: '<%= config.tpl %>/includes/gist',
+                dest: '.tmp/includes/gist/',
+                src: '{,*/}*.html'
             }
         },
 
@@ -423,6 +428,28 @@ module.exports = function (grunt) {
                         dest: '<%= config.app %>/scripts/'
                     }
                 ]
+            },
+            gist: {
+                options: {
+                    patterns: [
+                        {
+                            match: /#app_key_here/g,
+                            replacement: pass.local.app_key
+                        },
+                        {
+                            match: /#app_id_here/g,
+                            replacement: pass.local.app_id
+                        },
+                    ]
+                },
+                files: [
+                    {
+                        expand: true,
+                        flatten: true,
+                        src: ['<%= config.tpl %>/includes/gist/head.html'],
+                        dest: '.tmp/includes/gist/'
+                    }
+                ]
             }
         }
     });
@@ -464,7 +491,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask('build', [
         'clean:dist',
-        'includes',
+        'includes:dist',
         'useminPrepare',
         'concurrent:dist',
         'autoprefixer',
@@ -480,9 +507,7 @@ module.exports = function (grunt) {
     ]);
 
     grunt.registerTask('default', [
-        'newer:jshint',
-        'test',
-        'build'
+        'serve'
     ]);
 
     grunt.registerTask('ghpages', [
@@ -492,6 +517,8 @@ module.exports = function (grunt) {
 
     grunt.registerTask('gist', [
         'clean:gist',
+        'copy:gist',
+        'replace:gist',
         'includes:gist'
     ]);
 };
