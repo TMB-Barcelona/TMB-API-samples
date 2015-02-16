@@ -211,7 +211,7 @@ module.exports = function (grunt) {
         // additional tasks can operate on them
         useminPrepare: {
             options: {
-                debug:true,
+                debug: true,
                 dest: '<%= config.dist %>'
             },
             html: ['<%= config.app %>/index.html']
