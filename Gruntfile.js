@@ -23,6 +23,8 @@ module.exports = function (grunt) {
         gist: 'gist'
     };
 
+    var pass = grunt.file.readJSON('pass.json');
+
     // Define the configuration for all the tasks
     grunt.initConfig({
 
@@ -284,7 +286,7 @@ module.exports = function (grunt) {
                 src: ['*_gist.html'],
                 dest: '<%= config.gist %>',
                 options: {
-                    includePath: '<%= config.tpl %>/includes/gist'
+                    includePath: '.tmp/includes/gist'
                 }
             }
         },
@@ -346,6 +348,13 @@ module.exports = function (grunt) {
                 cwd: '<%= config.app %>/styles',
                 dest: '.tmp/styles/',
                 src: '{,*/}*.css'
+            },
+            gist: {
+                expand: true,
+                dot: true,
+                cwd: '<%= config.tpl %>/includes/gist',
+                dest: '.tmp/includes/gist/',
+                src: '{,*/}*.html'
             }
         },
 
@@ -363,15 +372,85 @@ module.exports = function (grunt) {
                 'svgmin'
             ]
         },
-        
+
         // Run to create and push gh-pages
         'gh-pages': {
-        	options: {
-        		base: 'dist',
-        		message: 'Auto-generated gh-pages commit',
-        		push: true
-        	},
-        	src: ['**/*']
+            options: {
+                base: 'dist',
+                message: 'Auto-generated gh-pages commit',
+                push: true
+            },
+            src: ['**/*']
+        },
+
+        // Replace the local with TMB Github app_key and app_id
+        'replace': {
+            dist: {
+                options: {
+                    patterns: [
+                        {
+                            match: /#app_key_here/g,
+                            replacement: pass.github.app_key
+                        },
+                        {
+                            match: /#app_id_here/g,
+                            replacement: pass.github.app_id
+                        },
+                    ]
+                },
+                files: [
+                    {
+                        expand: true,
+                        flatten: true,
+                        src: ['<%= config.tpl %>/scripts/auth.js'],
+                        dest: '.tmp/concat/scripts/'
+                    }
+                ]
+            },
+            local: {
+                options: {
+                    patterns: [
+                        {
+                            match: /#app_key_here/g,
+                            replacement: pass.local.app_key
+                        },
+                        {
+                            match: /#app_id_here/g,
+                            replacement: pass.local.app_id
+                        },
+                    ]
+                },
+                files: [
+                    {
+                        expand: true,
+                        flatten: true,
+                        src: ['<%= config.tpl %>/scripts/auth.js'],
+                        dest: '<%= config.app %>/scripts/'
+                    }
+                ]
+            },
+            gist: {
+                options: {
+                    patterns: [
+                        {
+                            match: /#app_key_here/g,
+                            replacement: pass.local.app_key
+                        },
+                        {
+                            match: /#app_id_here/g,
+                            replacement: pass.local.app_id
+                        },
+                    ]
+                },
+                files: [
+                    {
+                        expand: true,
+                        flatten: true,
+                        src: ['<%= config.tpl %>/includes/gist/head.html'],
+                        dest: '.tmp/includes/gist/'
+                    }
+                ]
+            }
         }
     });
 
@@ -384,6 +463,7 @@ module.exports = function (grunt) {
             'clean:server',
             'concurrent:server',
             'autoprefixer',
+            'replace:local',
             'connect:livereload',
             'watch'
         ]);
@@ -411,11 +491,12 @@ module.exports = function (grunt) {
 
     grunt.registerTask('build', [
         'clean:dist',
-        'includes',
+        'includes:dist',
         'useminPrepare',
         'concurrent:dist',
         'autoprefixer',
         'concat',
+        'replace:dist',
         'cssmin',
         'uglify',
         'copy:dist',
@@ -426,18 +507,18 @@ module.exports = function (grunt) {
     ]);
 
     grunt.registerTask('default', [
-        'newer:jshint',
-        'test',
-        'build'
+        'serve'
     ]);
-    
+
     grunt.registerTask('ghpages', [
-    	'build',
-    	'gh-pages'
+        'build',
+        'gh-pages'
     ]);
 
     grunt.registerTask('gist', [
         'clean:gist',
+        'copy:gist',
+        'replace:gist',
         'includes:gist'
-    ])
+    ]);
 };

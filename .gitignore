@@ -1,5 +1,6 @@
 app/*.html
 !app/404.html
+app/scripts/auth.js
 node_modules
 dist
 gist
@@ -11,3 +12,4 @@ test/bower_components
 .project
 .idea/
 .grunt/
+pass.json

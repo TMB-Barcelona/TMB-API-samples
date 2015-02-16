@@ -27,7 +27,8 @@
     "grunt-includes": "^0.4.5",
     "imagemin-gifsicle": "~4.0.0",
     "grunt-gh-pages": "~0.9.1",
-    "grunt-wiredep": "~2.0.0"
+    "grunt-wiredep": "~2.0.0",
+    "grunt-replace": "~0.8.0"
   },
   "engines": {
     "node": ">=0.10.0"
