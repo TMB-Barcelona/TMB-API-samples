@@ -59,6 +59,8 @@
 
 <script src="scripts/c6b52431.plugins.js"></script>
 
+<script src="scripts/87a8dd19.auth.js"></script>
+
 <!-- OpenLayers -->
 <script src="http://ol3js.org/en/master/build/ol.js"></script>
 
@@ -72,11 +74,6 @@
   ga('create', 'Google analytics key', 'auto');
   ga('send', 'pageview');
 
-</script>
-
-<script>
-    var write_here_your_app_key = 'd9905ec9b70bc6aca11e39be3cd0d856';
-    var write_here_your_app_id = 'df5c473f';
 </script>
 
 <script id="code">
@@ -102,8 +99,8 @@
         params: {
             'LAYERS': 'TMB:XARXA_METRO',
             'FORMAT': 'image/png',
-            'app_key': write_here_your_app_key,
-            'app_id': write_here_your_app_id
+            'app_key': write_your_app_key_here,
+            'app_id': write_your_app_id_here
         },
         url: 'http://api.tmb.cat/v1/maps/wms'
     });
@@ -132,8 +129,8 @@
      */
     var getDataFeatures = function(callback) {
         var url = 'http://api.tmb.cat/v1/maps/wfs?' + 
-                'app_key=' + write_here_your_app_key +
-                '&app_id=' + write_here_your_app_id +
+                'app_key=' + write_your_app_key_here +
+                '&app_id=' + write_your_app_id_here +
                 '&service=WFS&version=1.1.0&request=GetFeature' +
 				'&sortBy=CODI_LINIA' +
                 '&typename=TMB:LINIES_METRO' +
