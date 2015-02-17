@@ -47,6 +47,38 @@ This creates a `bower_components` directory with all JavaScript libraries.
 
 Now you are preparing to insert your samples!.
 
+## Managing your passwords
+
+> IMPORTANT!
+> THIS STEP IS MANDATORY TO RUN THE SAMPLES, PAY ATTENTION!
+
+To manage your passwords cleanly you must create a JSON file named ```pass.json``` in the root folder and copy this code:
+
+```javascript
+{
+  "github": {
+    "app_key": "d9905ec9b70bc6aca11e39be3cd0d856",
+    "app_id": "df5c473f"
+  },
+  "local": {
+    "app_key": "your app key here",
+    "app_id": "your app id here"
+  }
+}
+```
+
+Replace "your app key here" and "your app id here" by your correct app_key and app_id. In [TMB Developer Portal](https://developer.tmb.cat/), you can obtain these data.
+
+The ```pass.json``` file is ignored by ```.gitignore``` but after modify this with your correct app_key and app_id, this file can appear like a change in your ```git status```. To remove this change:
+
+```bash
+$ git rm --cached pass.json
+$ git commit -m 'Removed pass.json'
+$ git add -u
+$ git pull
+$ git push
+```
+
 ## Add your samples
 
 Create your `feature` branch:
