@@ -143,7 +143,16 @@ module.exports = function (grunt) {
                     ]
                 }]
             },
-            server: '.tmp'
+            server: {
+                files: [{
+                    dot: true,
+                    src: [
+                        '.tmp',
+                        '<%= config.app %>/*.html', '!<%= config.app %>/404.html',
+                        '<%= config.app %>/scripts/auth.js'
+                    ]
+                }]
+            }
         },
 
         // Make sure code styles are up to par and there are no obvious mistakes
@@ -461,6 +470,7 @@ module.exports = function (grunt) {
 
         grunt.task.run([
             'clean:server',
+            'includes:dist',
             'concurrent:server',
             'autoprefixer',
             'replace:local',
