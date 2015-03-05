@@ -3,6 +3,11 @@ The TMB API (Code samples)
 
 This repository contains the project used to create the code samples for [The TMB API](https://developer.tmb.cat/).
 
+Disclaimer
+----------
+TMB API is **_under active_** development. For more information, visit http://www.tmb.cat/en/dades-obertes.
+
+
 Demo
 ----
 
