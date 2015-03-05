@@ -41,6 +41,12 @@
       "description": "A selector populated with WFS data filters a WMS layer",
       "url": "sample_03_basic_map_geocode_gist.html",
       "thumbnail": "sample_03_basic_map_geocode_gist.png"
+    },
+    {
+      "title": "LayerSwitcher",
+      "description": "Changing between TMB layers with a layerswitcher",
+      "url": "sample_05_layerswitcher_gist.html",
+      "thumbnail": "sample_05_layerswitcher_gist.png"
     }
   ]
 }, {
