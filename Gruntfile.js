@@ -197,7 +197,7 @@ module.exports = function (grunt) {
         // Automatically inject Bower components into the HTML file
         wiredep: {
             app: {
-                src: ['<%= config.tpl %>/{,*/}*.html'],
+                src: ['includes/{,*/}*.html'],
                 exclude: ['bower_components/bootstrap/dist/js/bootstrap.js']
             }
         },
@@ -287,7 +287,7 @@ module.exports = function (grunt) {
                 src: ['*.html'],
                 dest: '<%= config.app %>',
                 options: {
-                    includePath: '<%= config.tpl %>/includes'
+                    includePath: 'includes'
                 }
             },
             gist: {
@@ -361,7 +361,7 @@ module.exports = function (grunt) {
             gist: {
                 expand: true,
                 dot: true,
-                cwd: '<%= config.tpl %>/includes/gist',
+                cwd: 'includes/gist',
                 dest: '.tmp/includes/gist/',
                 src: '{,*/}*.html'
             }
@@ -426,7 +426,7 @@ module.exports = function (grunt) {
                         {
                             match: /#app_id_here/g,
                             replacement: pass.local.app_id
-                        },
+                        }
                     ]
                 },
                 files: [
@@ -455,7 +455,7 @@ module.exports = function (grunt) {
                     {
                         expand: true,
                         flatten: true,
-                        src: ['<%= config.tpl %>/includes/gist/head.html'],
+                        src: ['includes/gist/head.html'],
                         dest: '.tmp/includes/gist/'
                     }
                 ]
