@@ -8,7 +8,7 @@
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
 
-        <div class="container">        
+        <div class="container">
 
             include "header.html"
 
@@ -17,9 +17,9 @@
             <p>Changing between TMB layers with a layerswitcher</p>
 
 			<!-- HERE YOUR HTML e.g.: map, select, button... -->
-			
+
             <div id="map" class="map"></div>
-            
+
             <!-- -->
 
             include "text-muted.html"
@@ -31,17 +31,77 @@
         include "tail.html"
 
         include "ganalytics.html"
-        
+
         <script>
-        
+
         	 // HERE YOUR JS INVISIBLE CODE e.g.: app_key...
-        	  
+
         </script>
-        
+
         <script id="code">
-        
-        	// HERE YOUR JS RUNNABLE CODE
-        	
+            var map = new ol.Map({
+                target: 'map',
+                layers: [
+                    new ol.layer.Group({
+                        'title': 'Base maps',
+                        layers: [
+                            new ol.layer.Tile({
+                                title: 'Carto Soft',
+                                type: 'base',
+                                visible: true,
+                                source: new ol.source.TileWMS({
+                                    params: {
+                                        'LAYERS': 'TMB:CARTO_SOFT',
+                                        'FORMAT': 'image/png',
+                                        'srs': 'EPSG:3857',
+                                        'app_key': write_your_app_key_here,
+                                        'app_id': write_your_app_id_here
+                                    },
+                                    url: 'http://api.tmb.cat/v1/maps/gwc/wms'
+                                })
+                            }),
+                            new ol.layer.Tile({
+                                title: 'Bing Satellite',
+                                type: 'base',
+                                visible: false,
+                                source: new ol.source.BingMaps({
+                                    key: 'Ak-dzM4wZjSqTlzveKz5u0d4IQ4bRzVI309GxmkgSVr1ewS6iPSrOvOKhA-CJlm3',
+                                    imagerySet: 'Aerial'
+                                })
+                            })
+                        ]
+                    }),
+                    new ol.layer.Group({
+                        title: 'Overlays',
+                        layers: [
+                            new ol.layer.Image({
+                                title: 'Xarxa Metro',
+                                source: new ol.source.ImageWMS({
+                                    params: {
+                                        'LAYERS': 'TMB:XARXA_METRO',
+                                        'FORMAT': 'image/png',
+                                        'TRANSPARENT': true,
+                                        'app_id': write_your_app_id_here,
+                                        'app_key': write_your_app_key_here
+                                    },
+                                    url: 'http://api.tmb.cat/v1/maps/wms'
+                                })
+                            })
+                        ]
+                    })
+                ],
+                view: new ol.View({
+                    center: new ol.proj.transform([2.1574, 41.3987], "EPSG:4326", "EPSG:3857"),
+                    projection: 'EPSG:3857',
+                    zoom: 12
+                })
+            });
+
+            var layerSwitcher = new ol.control.LayerSwitcher({
+                tipLabel: 'Legend'
+            });
+            map.addControl(layerSwitcher);
+
         </script>
 
         include "sourcecode.html"

@@ -72,3 +72,12 @@ body {
 pre {
     padding: 0;
 }
+
+.layer-switcher > button {
+    height: 38px!important;
+    width: 38px!important;
+}
+
+.layer-switcher {
+    top: 0.5em;
+}
