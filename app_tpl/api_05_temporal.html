@@ -1,0 +1,204 @@
+<!doctype html>
+<html class="no-js">
+    <head>
+        include "head.html"
+    </head>
+    <body>
+        <!--[if lt IE 10]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        <div class="container">
+
+            include "header.html"
+
+            <h2>Playing with Temporal data</h2>
+
+            <p>Using temporal data. <strong>Select bus line number 220 or 221 in combo, only lines with data, </strong> after press play.</p>
+
+            <div id="the_date"></div>
+
+            <div id="map" class="map"></div>
+
+            <select id="liniesbus" class="btn-group">
+                <option value="0">LINIA BUS</option>
+            </select>
+
+            <div class="btn-group pull-right" role="group" aria-label="...">
+                <button id="stop" type="button" class="btn btn-default">Stop</button>
+                <button id="play" type="button" class="btn btn-default">Play</button>
+            </div>
+            <!-- -->
+
+            include "text-muted.html"
+
+            include "footer.html"
+
+        </div>
+
+        include "tail.html"
+
+        include "ganalytics.html"
+
+
+        <script>
+
+            'use strict';
+
+            var play = false;
+            var linia = '0';
+
+            var select = $('#liniesbus');
+
+            /**
+             * Function to get features: Linies Bus combobox
+             */
+            var getBusLinies = function() {
+
+                var url = 'http://api.tmb.cat/v1/transit/linies/bus?' +
+                        'app_key=' + write_your_app_key_here +
+                        '&app_id=' + write_your_app_id_here;
+
+                var getLiniesRequest = new XMLHttpRequest();
+                getLiniesRequest.onreadystatechange = function() {
+                    if (getLiniesRequest.readyState != 4 || getLiniesRequest.status != 200) return;
+                    var response = JSON.parse(getLiniesRequest.responseText);
+                    var features = response.features;
+                    for (var n in features) {
+                        var feature = features[n];
+                        select.append(new Option(feature.properties.ID_LINIA, feature.properties.ID_LINIA));
+                    }
+
+                    select.selectpicker('refresh');
+                };
+                getLiniesRequest.overrideMimeType('application/json');
+                getLiniesRequest.open('GET', url, true);
+
+                getLiniesRequest.send();
+            };
+
+            var onClickSelector = function(evt) {
+                linia = evt.currentTarget.selectedOptions[0].value;
+            };
+
+            select.on('change', null, null, onClickSelector);
+
+            getBusLinies();
+            select.selectpicker()
+
+        </script>
+
+        <script id="code">
+
+            var baseLayer = new ol.layer.Tile({
+                style: 'Road',
+                source: new ol.source.MapQuest({layer: 'osm'})
+            });
+
+            var map = new ol.Map({
+                layers: [
+                    baseLayer
+                ],
+                target: 'map',
+                view: new ol.View({
+                    center: new ol.proj.transform([2.1574, 41.3987], "EPSG:4326", "EPSG:3857"),
+                    projection: 'EPSG:3857',
+                    zoom: 12
+                })
+            });
+
+
+            /**
+             * Function to get features
+             * @param extent
+             * @param resolution
+             * @param projection
+             */
+            var day = moment('01-06-2013', 'DD-MM-YYYY');
+            var loaderFunction = function(extentToLoad, resolution, projection) {
+
+                var featuresOfDay = function() {
+                    var getFeaturesRequest = new XMLHttpRequest();
+                    day.add(1, 'd');
+                    var url = 'http://api.tmb.cat/v1/transit/linies/bus/' + linia +
+                            '/parades/' + day.format('DD-MM-YYYY') +
+                            '?app_key=' + write_your_app_key_here +
+                            '&app_id=' + write_your_app_id_here;
+
+                    getFeaturesRequest.open('GET', url, true);
+                    getFeaturesRequest.send();
+
+                    getFeaturesRequest.onreadystatechange = function() {
+                        if (getFeaturesRequest.readyState != 4 || getFeaturesRequest.status != 200) return;
+                        loadFeatures(JSON.parse(getFeaturesRequest.responseText));
+                        $('#the_date').text(day.format('DD-MM-YYYY'));
+                    };
+
+                    getFeaturesRequest.overrideMimeType('application/json');
+                };
+
+                if (play) {
+                    featuresOfDay();
+                }
+            };
+
+            /**
+             *
+             * @type {ol.source.ServerVector}
+             */
+            var vectorSource = new ol.source.ServerVector({
+                format : new ol.format.GeoJSON(),
+                loader : loaderFunction,
+                projection : 'EPSG:3857',
+                strategy: ol.loadingstrategy.all
+            });
+
+            /**
+             *
+             * @param response
+             */
+            var loadFeatures = function(response) {
+                vectorSource.clear(true);
+                vectorSource.addFeatures(vectorSource.readFeatures(response));
+            };
+
+            /**
+             *
+             * @type {ol.layer.Vector}
+             */
+            var vector = new ol.layer.Vector({
+                source : vectorSource,
+                style : new ol.style.Style({
+                    image : new ol.style.Circle({
+                        fill : new ol.style.Fill({
+                            color : 'rgba(255,0,0,0.4)'
+                        }),
+                        stroke : new ol.style.Stroke({
+                            color : '#C90707',
+                            width : 3
+                        }),
+                        radius : 5
+                    })
+                })
+            });
+
+            var onPlay = function() {
+                play = true;
+                loaderFunction();
+            };
+
+            var onStop = function() {
+                play = false;
+            };
+
+            document.getElementById('stop').addEventListener('click', onStop);
+            document.getElementById('play').addEventListener('click', onPlay);
+
+            map.addLayer(vector);
+
+        </script>
+
+        include "sourcecode.html"
+
+    </body>
+</html>

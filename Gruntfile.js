@@ -475,6 +475,7 @@ module.exports = function (grunt) {
             'autoprefixer',
             'replace:local',
             'connect:livereload',
+            'gist',
             'watch'
         ]);
     });
