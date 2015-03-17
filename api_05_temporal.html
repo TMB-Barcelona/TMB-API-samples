@@ -38,7 +38,7 @@
 
             <h2>Playing with Temporal data</h2>
 
-            <p>Using temporal data. <strong>Select bus line number 220 or 221 in combo, only lines with data, </strong> after press play.</p>
+            <p>Using temporal data. <strong>Select bus line number 220 or 221 in combo, lines with data, </strong> after press play.</p>
 
             <div id="the_date"></div>
 
@@ -103,7 +103,8 @@
 
                 var url = 'http://api.tmb.cat/v1/transit/linies/bus?' +
                         'app_key=' + write_your_app_key_here +
-                        '&app_id=' + write_your_app_id_here;
+                        '&app_id=' + write_your_app_id_here +
+                        '&propertyName=CODI_LINIA&sortBy=CODI_LINIA';
 
                 var getLiniesRequest = new XMLHttpRequest();
                 getLiniesRequest.onreadystatechange = function() {
@@ -112,7 +113,7 @@
                     var features = response.features;
                     for (var n in features) {
                         var feature = features[n];
-                        select.append(new Option(feature.properties.ID_LINIA, feature.properties.ID_LINIA));
+                        select.append(new Option(feature.properties.CODI_LINIA, feature.properties.CODI_LINIA));
                     }
 
                     select.selectpicker('refresh');
