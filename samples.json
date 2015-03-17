@@ -57,6 +57,12 @@
       "description": "The page reloading itself every 10 seconds loading new data",
       "url": "sample_04_autoreload_gist.html",
       "thumbnail": "sample_04_autoreload_gist.png"
+    },
+    {
+      "title": "Playing with Temporal data",
+      "description": "Samples using temporal data",
+      "url": "api_05_temporal.html",
+      "thumbnail": "api_05_temporal.png"
     }
   ]
 }
