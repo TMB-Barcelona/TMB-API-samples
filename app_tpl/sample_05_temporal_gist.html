@@ -73,25 +73,23 @@
             var day = moment('01-06-2013', 'DD-MM-YYYY');
             var loaderFunction = function(extentToLoad, resolution, projection) {
 
-                var getFeaturesRequest = new XMLHttpRequest();
-
                 var featuresOfDay = function() {
+                    var getFeaturesRequest = new XMLHttpRequest();
                     day.add(1, 'd');
                     var url = 'http://api.tmb.cat/v1/transit/linies/bus/220/parades/' + day.format('DD-MM-YYYY') + '?app_key=' + write_your_app_key_here +
                             '&app_id=' + write_your_app_id_here;
                     getFeaturesRequest.open('GET', url, true);
                     getFeaturesRequest.send();
+
+                    getFeaturesRequest.onreadystatechange = function() {
+                        if (getFeaturesRequest.readyState != 4 || getFeaturesRequest.status != 200) return;
+                        loadFeatures(JSON.parse(getFeaturesRequest.responseText));
+                        $('#the_date').text(day.format('DD-MM-YYYY'));
+                    };
+
+                    getFeaturesRequest.overrideMimeType('application/json');
                 };
 
-                getFeaturesRequest.onreadystatechange = function() {
-                    if (getFeaturesRequest.readyState != 4 || getFeaturesRequest.status != 200) return;
-                    loadFeatures(JSON.parse(getFeaturesRequest.responseText));
-                    $('#the_date').text(day.format('DD-MM-YYYY'));
-                };
-
-                getFeaturesRequest.overrideMimeType('application/json');
-
-                console.log(play)
                 if (play) {
                     featuresOfDay();
                 }
