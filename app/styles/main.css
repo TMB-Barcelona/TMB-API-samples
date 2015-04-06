@@ -73,6 +73,8 @@ pre {
     padding: 0;
 }
 
+/* Layer switcher sample */
+
 .layer-switcher > button {
     height: 38px!important;
     width: 38px!important;
@@ -122,3 +124,10 @@ pre {
     background-color: #060606;
 }
 
+.main-section {
+    margin-top: 25px;
+}
+
+#messageContainer {
+    margin-top: 200px;
+}

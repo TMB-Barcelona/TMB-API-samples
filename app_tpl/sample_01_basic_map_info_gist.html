@@ -7,24 +7,28 @@
 <!--[if lt IE 10]>
 <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
 <![endif]-->
+include "header.html"
 
-<div class="container">
+<section class="main-section">
 
-    include "header.html"
+    <div class="container">
 
-    <h2>Basic map with GetFeatureInfo</h2>
 
-    <p>This sample shows how to create a very basic map with two raster layers and with GetFeatureInfo control.</p>
+        <h2>Basic map with GetFeatureInfo</h2>
 
-    <div id="map" class="map"></div>
+        <p>This sample shows how to create a very basic map with two raster layers and with GetFeatureInfo control.</p>
 
-    <div id="info" style="width:100%;"></div>
+        <div id="map" class="map"></div>
 
-    include "text-muted.html"
+        <div id="info" style="width:100%;"></div>
 
-    include "footer.html"
+        include "text-muted.html"
 
-</div>
+        include "footer.html"
+
+    </div>
+
+</section>
 
 include "tail.html"
 
@@ -49,7 +53,7 @@ include "ganalytics.html"
             url: 'http://api.tmb.cat/v1/maps/wms'
         })
     });
-	
+
     var layers = [
         baseLayer, queryLayer
     ];

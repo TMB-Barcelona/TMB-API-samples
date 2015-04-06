@@ -7,30 +7,32 @@
 <!--[if lt IE 10]>
 <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
 <![endif]-->
+include "header.html"
 
-<div class="container">
+<section class="main-section">
 
-    include "header.html"
+    <div class="container">
 
-    <h2>Playing with Time as variable</h2>
+        <h2>Playing with Time as variable</h2>
 
-    <p>The page reloading itself every 10 seconds loading new data</p>
+        <p>The page reloading itself every 10 seconds loading new data</p>
 
-    <div id="map" class="map"></div>
+        <div id="map" class="map"></div>
 
-    <div class="btn-group" role="group" aria-label="...">
-        <button id="stop" type="button" class="btn btn-default">Stop</button>
-        <button id="play" type="button" class="btn btn-default">Play</button>
-        <!--button type="button" class="btn btn-default">Right</button-->
+        <div class="btn-group" role="group" aria-label="...">
+            <button id="stop" type="button" class="btn btn-default">Stop</button>
+            <button id="play" type="button" class="btn btn-default">Play</button>
+            <!--button type="button" class="btn btn-default">Right</button-->
+        </div>
+        <!-- -->
+
+        include "text-muted.html"
+
+        include "footer.html"
+
     </div>
-    <!-- -->
 
-    include "text-muted.html"
-
-    include "footer.html"
-
-</div>
-
+</section>
 include "tail.html"
 
 include "ganalytics.html"
