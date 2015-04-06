@@ -73,6 +73,8 @@ pre {
     padding: 0;
 }
 
+/* Layer switcher sample */
+
 .layer-switcher > button {
     height: 38px!important;
     width: 38px!important;
@@ -80,4 +82,52 @@ pre {
 
 .layer-switcher {
     top: 0.5em;
+}
+
+/* TMB Navbar */
+
+.navbar-form{
+    padding-top:2px;
+}
+
+.navbar-brand{
+    padding: 2px 0px;
+    height: 50px;
+}
+
+.navbar-inverse {
+    -webkit-box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.4);
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.4);
+    background-color:#060606;
+}
+
+.nav .btn-danger .caret {
+    border-top-color: #fff;
+    border-bottom-color: #fff;
+}
+.nav-pills-tmb a{
+    color:#000;
+}
+
+.nav-pills-tmb > li > a:hover,
+.nav-pills-tmb > li > a:focus {
+    text-decoration: none;
+    background-color: #eeeeee;
+}
+
+.nav-pills-tmb > li.active > a,
+.nav-pills-tmb > li.active > a:hover,
+.nav-pills-tmb > li.active > a:focus {
+    color: #ffffff;
+    -webkit-box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.4);
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.4);
+    background-color: #060606;
+}
+
+.main-section {
+    margin-top: 25px;
+}
+
+#messageContainer {
+    margin-top: 200px;
 }

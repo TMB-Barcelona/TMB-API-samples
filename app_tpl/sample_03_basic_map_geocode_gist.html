@@ -7,26 +7,29 @@
 <!--[if lt IE 10]>
 <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
 <![endif]-->
+include "header.html"
 
-<div class="container">
+<section class="main-section">
 
-    include "header.html"
+    <div class="container">
 
-    <h2>Map with WFS + WMS chainned calls</h2>
+        <h2>Map with WFS + WMS chainned calls</h2>
 
-    <p>This sample shows how to "go and filter" a WMS layer based on data retrieved from a WFS petition.</p>
+        <p>This sample shows how to "go and filter" a WMS layer based on data retrieved from a WFS petition.</p>
 
-    <div id="map" class="map"></div>
+        <div id="map" class="map"></div>
 
-    <select id="selectfeatures">
-        <option value="0">LINIA - NOM</option>
-    </select>
+        <select id="selectfeatures">
+            <option value="0">LINIA - NOM</option>
+        </select>
 
-    include "text-muted.html"
+        include "text-muted.html"
 
-    include "footer.html"
+        include "footer.html"
 
-</div>
+    </div>
+
+</section>
 
 include "tail.html"
 
@@ -50,7 +53,7 @@ include "ganalytics.html"
         })
     });
 
-	// split layer source definition in order to change layer filter dinamically later on.
+    // split layer source definition in order to change layer filter dinamically later on.
     var xarxa_metro_source = new ol.source.TileWMS({
         params: {
             'LAYERS': 'TMB:XARXA_METRO',
@@ -84,11 +87,11 @@ include "ganalytics.html"
      * @param callback, function receives the response
      */
     var getDataFeatures = function(callback) {
-        var url = 'http://api.tmb.cat/v1/maps/wfs?' + 
+        var url = 'http://api.tmb.cat/v1/maps/wfs?' +
                 'app_key=' + write_your_app_key_here +
                 '&app_id=' + write_your_app_id_here +
                 '&service=WFS&version=1.1.0&request=GetFeature' +
-				'&sortBy=CODI_LINIA' +
+                '&sortBy=CODI_LINIA' +
                 '&typename=TMB:LINIES_METRO' +
                 '&outputFormat=application/json&srsname=EPSG:3857';
 
@@ -106,7 +109,7 @@ include "ganalytics.html"
 
     var select = document.getElementById('selectfeatures');
 
-	// Combo click event: Center + Filter info
+    // Combo click event: Center + Filter info
     var onClickSelector = function(evt) {
 
         var codi_linia = evt.currentTarget.selectedOptions[selectedIndex].value;
@@ -152,7 +155,7 @@ include "ganalytics.html"
         }
     };
 
-	// load select control on load
+    // load select control on load
     getDataFeatures(loadData);
 
 </script>
