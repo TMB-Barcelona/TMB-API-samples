@@ -93,15 +93,13 @@
                     var icon = new ol.style.Icon({
                         src: images.start
                     });
-                    var iconStyle = new ol.style.Style({
-                        image : icon
-                    });
-                    feature.setStyle(iconStyle);
-                    features.addFeature(feature);
                 } else if (countfeatures == 1) {
                     var icon = new ol.style.Icon({
                         src: images.stop
                     });
+                }
+
+                if (countfeatures == 0 || countfeatures ==1) {
                     var iconStyle = new ol.style.Style({
                         image : icon
                     });
