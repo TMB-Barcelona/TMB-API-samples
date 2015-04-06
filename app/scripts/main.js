@@ -11,7 +11,7 @@
 			chapter = data[ci];
 
 			elems += '<div class="row">';
-			elems += '<h2>' + chapter.title + '</h2><hr/>';
+			elems += '<h2><a name="' + chapter.title.replace(/ /g, '_')+ '">' + chapter.title + '</a></h2><hr/>';
 
 			for(si=0; si<chapter.samples.length; si++) {
 				sample = chapter.samples[si];
