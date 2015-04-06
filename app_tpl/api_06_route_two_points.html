@@ -1,0 +1,121 @@
+<!doctype html>
+<html class="no-js">
+    <head>
+        include "head.html"
+    </head>
+    <body>
+        <!--[if lt IE 10]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        include "header.html"
+
+        <section class="main-section">
+
+        <div class="container">
+
+            <h2>Calculate route between two points</h2>
+
+            <p>Calculate route between two points using TMB Planner API</p>
+
+			<!-- HERE YOUR HTML e.g.: map, select, button... -->
+			
+            <div id="map" class="map"></div>
+            
+            <!-- -->
+
+            include "text-muted.html"
+
+            include "footer.html"
+
+        </div>
+
+        </section>
+
+        include "tail.html"
+
+        include "ganalytics.html"
+        
+        <script>
+        
+        	 var images = {
+                 start: 'images/start.png',
+                 stop: 'images/stop.png'
+             }
+        	  
+        </script>
+        
+        <script id="code">
+
+            var layers = [
+                new ol.layer.Tile({
+                    source: new ol.source.TileWMS({
+                        params: {
+                            'LAYERS': 'TMB:CARTO_SOFT',
+                            'FORMAT': 'image/png',
+                            'srs': 'EPSG:3857',
+                            'app_key': write_your_app_key_here,
+                            'app_id': write_your_app_id_here
+                        },
+                        url: 'http://api.tmb.cat/v1/maps/gwc/wms'
+                    })
+                })
+            ];
+
+            var features = new ol.source.Vector();
+
+            var vectorLayer = new ol.layer.Vector({
+                source: features
+            });
+
+            layers.push(vectorLayer);
+
+            var map = new ol.Map({
+                layers: layers,
+                target: 'map',
+                view: new ol.View({
+                    center: new ol.proj.transform([2.1574, 41.3987], "EPSG:4326", "EPSG:3857"),
+                    projection: 'EPSG:3857',
+                    zoom: 12
+                })
+            });
+
+            map.on('click', function(evt) {
+
+                var geom = new ol.geom.Point(
+                        evt.coordinate
+                );
+
+                var feature = new ol.Feature(geom);
+
+                var countfeatures = features.getFeatures().length;
+                if (countfeatures == 0) {
+                    var icon = new ol.style.Icon({
+                        src: images.start
+                    });
+                    var iconStyle = new ol.style.Style({
+                        image : icon
+                    });
+                    feature.setStyle(iconStyle);
+                    features.addFeature(feature);
+                } else if (countfeatures == 1) {
+                    var icon = new ol.style.Icon({
+                        src: images.stop
+                    });
+                    var iconStyle = new ol.style.Style({
+                        image : icon
+                    });
+                    feature.setStyle(iconStyle);
+                    features.addFeature(feature);
+                } else {
+                    features.clear(true);
+                }
+            });
+
+
+        </script>
+
+        include "sourcecode.html"
+
+    </body>
+</html>
