@@ -13,7 +13,7 @@
         <!-- bootswatch yeti theme -->
         <link href="//maxcdn.bootstrapcdn.com/bootswatch/3.2.0/yeti/bootstrap.min.css" rel="stylesheet">
 
-        <link rel="stylesheet" href="styles/2da05352.main.css"/>
+        <link rel="stylesheet" href="styles/6f70f11d.main.css"/>
 
         <!-- OpenLayers -->
         <link rel="stylesheet" href="http://ol3js.org/en/master/css/ol.css">
@@ -22,19 +22,45 @@
         <!--[if lt IE 10]>
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
+        <header id="main-menu">
+            <div class="navbar navbar-fixed-top navbar-inverse" role="navigation">
+                <div class="container">
+                    <div class="navbar-header">
+                        <!-- Brand and toggle get grouped for better mobile display -->
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                            <span class="sr-only">Toggle Menu</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" href="/"><img src="images/logoTMB-shadowy.png" title="TMB Developer Portal"></a>
+                    </div>
+                    <div class="navbar-collapse collapse">
 
-        <div class="container">
+                        <ul class="nav navbar-nav">
+                            <!-- Documentació -->
 
-            <div class="header">
-            	
-                <h1><a href="index.html">The TMB - API <span class="text-muted">[Code samples]</span></a></h1>
+                            <!-- API pública -->
 
-                <p>These are the code samples for <a href="https://developer.tmb.cat/">The TMB API</a>.
+                            <!-- API privada -->
 
-                <div>
+                            <!-- Exemples -->
 
+                            <!-- Cercador -->
+                            <!--<li>
+                              <a id="search" class="search" title="Cerca" href="https://developer.tmb.cat/search">
+                                <i class="icon-search"></i> Cercador
+                              </a>
+                            </li>-->
+                        </ul>
+                    </div>
                 </div>
             </div>
+        </header>
+
+        <section class="main-section">
+
+        <div class="container">
 
             <h2>Playing with Temporal data</h2>
 
@@ -62,6 +88,8 @@
             </div>
 
         </div>
+
+        </section>
 
         <!-- OpenLayers -->
         <script src="http://ol3js.org/en/master/build/ol.js"></script>
