@@ -41,7 +41,7 @@
         	 var images = {
                  start: 'images/start.png',
                  stop: 'images/stop.png'
-             }
+             };
         	  
         </script>
         
@@ -63,12 +63,23 @@
             ];
 
             var features = new ol.source.Vector();
+            var routes = new ol.source.Vector();
 
             var vectorLayer = new ol.layer.Vector({
                 source: features
             });
 
-            layers.push(vectorLayer);
+            var routeLayer = new ol.layer.Vector({
+                source: routes,
+                style : new ol.style.Style({
+                    stroke: new ol.style.Stroke({
+                        color: [0, 153, 255, 1],
+                        width: 2
+                    })
+                })
+            });
+
+            layers.push(vectorLayer, routeLayer);
 
             var map = new ol.Map({
                 layers: layers,
@@ -93,13 +104,15 @@
                     var icon = new ol.style.Icon({
                         src: images.start
                     });
+                    feature.setId('start');
                 } else if (countfeatures == 1) {
                     var icon = new ol.style.Icon({
                         src: images.stop
                     });
+                    feature.setId('stop');
                 }
 
-                if (countfeatures == 0 || countfeatures ==1) {
+                if (countfeatures == 0 || countfeatures == 1) {
                     var iconStyle = new ol.style.Style({
                         image : icon
                     });
@@ -107,9 +120,50 @@
                     features.addFeature(feature);
                 } else {
                     features.clear(true);
+                    routes.clear(true);
+                }
+
+                if (features.getFeatures().length == 2) {
+                    var api = 'http://api.tmb.cat/v1/planner/plan?';
+                    var start = features.getFeatureById('start');
+                    var stop = features.getFeatureById('stop');
+
+                    var url = api + 'app_key=' + write_your_app_key_here +
+                                    '&app_id=' + write_your_app_id_here;
+
+                    var fromPlace = start.getGeometry().clone().transform('EPSG:3857', 'EPSG:4326').getCoordinates();
+                    var toPlace = stop.getGeometry().clone().transform('EPSG:3857', 'EPSG:4326').getCoordinates();
+
+                    url = url + '&fromPlace=' + ol.coordinate.format(fromPlace, '{y},{x}', 18) +
+                            '&toPlace=' + ol.coordinate.format(toPlace, '{y},{x}', 18);
+
+                    var getPlanRequest = new XMLHttpRequest();
+
+                    getPlanRequest.onreadystatechange = function() {
+                        if (getPlanRequest.readyState != 4 || getPlanRequest.status != 200) return;
+                        var response = JSON.parse(getPlanRequest.response);
+                        var plan = response.plan;
+                        var itinerary = plan.itineraries[0];
+                        for (var n in itinerary.legs) {
+                            var leg = itinerary.legs[n];
+                            var legGeom = ol.format.Polyline.decodeDeltas(leg.legGeometry.points, 2);
+                            var coordinates = [];
+                            for (var n= 0; n<legGeom.length - 1; n=n+2) {
+                                coordinates.push([legGeom[n + 1], legGeom[n]]);
+                            }
+                            var geom = new ol.geom.LineString(coordinates);
+                            var route = new ol.Feature(geom.transform('EPSG:4326', 'EPSG:3857'));
+                            routes.addFeature(route);
+                        }
+                    };
+                    getPlanRequest.overrideMimeType('application/json');
+
+                    getPlanRequest.open('GET', url, true);
+
+                    getPlanRequest.send();
+
                 }
             });
-
 
         </script>
 
