@@ -65,5 +65,15 @@
       "thumbnail": "api_05_temporal.png"
     }
   ]
+}, {
+  "title": "Planner",
+  "samples": [
+    {
+      "title": "Calculate route between two points",
+      "description": "Calculate route between two points using TMB Planner API",
+      "url": "api_06_route_two_points.html",
+      "thumbnail": "api_06_route_two_points.png"
+    }
+  ]
 }
 ]

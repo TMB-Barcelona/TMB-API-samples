@@ -1,0 +1,173 @@
+<!doctype html>
+<html class="no-js">
+    <head>
+        include "head.html"
+    </head>
+    <body>
+        <!--[if lt IE 10]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        include "header.html"
+
+        <section class="main-section">
+
+        <div class="container">
+
+            <h2>Calculate route between two points</h2>
+
+            <p>Calculate route between two points using TMB Planner API</p>
+
+			<!-- HERE YOUR HTML e.g.: map, select, button... -->
+			
+            <div id="map" class="map"></div>
+            
+            <!-- -->
+
+            include "text-muted.html"
+
+            include "footer.html"
+
+        </div>
+
+        </section>
+
+        include "tail.html"
+
+        include "ganalytics.html"
+        
+        <script>
+        
+        	 var images = {
+                 start: 'images/start.png',
+                 stop: 'images/stop.png'
+             };
+        	  
+        </script>
+        
+        <script id="code">
+
+            var layers = [
+                new ol.layer.Tile({
+                    source: new ol.source.TileWMS({
+                        params: {
+                            'LAYERS': 'TMB:CARTO_SOFT',
+                            'FORMAT': 'image/png',
+                            'srs': 'EPSG:3857',
+                            'app_key': write_your_app_key_here,
+                            'app_id': write_your_app_id_here
+                        },
+                        url: 'http://api.tmb.cat/v1/maps/gwc/wms'
+                    })
+                })
+            ];
+
+            var features = new ol.source.Vector();
+            var routes = new ol.source.Vector();
+
+            var vectorLayer = new ol.layer.Vector({
+                source: features
+            });
+
+            var routeLayer = new ol.layer.Vector({
+                source: routes,
+                style : new ol.style.Style({
+                    stroke: new ol.style.Stroke({
+                        color: [0, 153, 255, 1],
+                        width: 2
+                    })
+                })
+            });
+
+            layers.push(vectorLayer, routeLayer);
+
+            var map = new ol.Map({
+                layers: layers,
+                target: 'map',
+                view: new ol.View({
+                    center: new ol.proj.transform([2.1574, 41.3987], "EPSG:4326", "EPSG:3857"),
+                    projection: 'EPSG:3857',
+                    zoom: 12
+                })
+            });
+
+            map.on('click', function(evt) {
+
+                var geom = new ol.geom.Point(
+                        evt.coordinate
+                );
+
+                var feature = new ol.Feature(geom);
+
+                var countfeatures = features.getFeatures().length;
+                if (countfeatures == 0) {
+                    var icon = new ol.style.Icon({
+                        src: images.start
+                    });
+                    feature.setId('start');
+                } else if (countfeatures == 1) {
+                    var icon = new ol.style.Icon({
+                        src: images.stop
+                    });
+                    feature.setId('stop');
+                }
+
+                if (countfeatures == 0 || countfeatures == 1) {
+                    var iconStyle = new ol.style.Style({
+                        image : icon
+                    });
+                    feature.setStyle(iconStyle);
+                    features.addFeature(feature);
+                } else {
+                    features.clear(true);
+                    routes.clear(true);
+                }
+
+                if (features.getFeatures().length == 2) {
+                    var api = 'http://api.tmb.cat/v1/planner/plan?';
+                    var start = features.getFeatureById('start');
+                    var stop = features.getFeatureById('stop');
+
+                    var url = api + 'app_key=' + write_your_app_key_here +
+                                    '&app_id=' + write_your_app_id_here;
+
+                    var fromPlace = start.getGeometry().clone().transform('EPSG:3857', 'EPSG:4326').getCoordinates();
+                    var toPlace = stop.getGeometry().clone().transform('EPSG:3857', 'EPSG:4326').getCoordinates();
+
+                    url = url + '&fromPlace=' + ol.coordinate.format(fromPlace, '{y},{x}', 18) +
+                            '&toPlace=' + ol.coordinate.format(toPlace, '{y},{x}', 18);
+
+                    var getPlanRequest = new XMLHttpRequest();
+
+                    getPlanRequest.onreadystatechange = function() {
+                        if (getPlanRequest.readyState != 4 || getPlanRequest.status != 200) return;
+                        var response = JSON.parse(getPlanRequest.response);
+                        var plan = response.plan;
+                        var itinerary = plan.itineraries[0];
+                        for (var n in itinerary.legs) {
+                            var leg = itinerary.legs[n];
+                            var legGeom = ol.format.Polyline.decodeDeltas(leg.legGeometry.points, 2);
+                            var coordinates = [];
+                            for (var n= 0; n<legGeom.length - 1; n=n+2) {
+                                coordinates.push([legGeom[n + 1], legGeom[n]]);
+                            }
+                            var geom = new ol.geom.LineString(coordinates);
+                            var route = new ol.Feature(geom.transform('EPSG:4326', 'EPSG:3857'));
+                            routes.addFeature(route);
+                        }
+                    };
+                    getPlanRequest.overrideMimeType('application/json');
+
+                    getPlanRequest.open('GET', url, true);
+
+                    getPlanRequest.send();
+
+                }
+            });
+
+        </script>
+
+        include "sourcecode.html"
+
+    </body>
+</html>
