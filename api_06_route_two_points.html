@@ -134,19 +134,37 @@
                 })
             ];
 
-            var features = new ol.source.Vector();
+            /**
+             * Source to save markers
+             * @type {ol.source.Vector}
+             */
+            var markers = new ol.source.Vector();
+
+            /**
+             * Source to save the route
+             * @type {ol.source.Vector}
+             */
             var routes = new ol.source.Vector();
 
+            /**
+             * Layer to save markers using source
+             * @type {ol.layer.Vector}
+             */
             var vectorLayer = new ol.layer.Vector({
-                source: features
+                source: markers
             });
 
+            /**
+             * Layer to save route using the route source.
+             * The style is aplied
+             * @type {ol.layer.Vector}
+             */
             var routeLayer = new ol.layer.Vector({
                 source: routes,
                 style : new ol.style.Style({
                     stroke: new ol.style.Stroke({
                         color: [0, 153, 255, 1],
-                        width: 2
+                        width: 3
                     })
                 })
             });
@@ -169,36 +187,36 @@
                         evt.coordinate
                 );
 
-                var feature = new ol.Feature(geom);
+                var marker = new ol.Feature(geom);
 
-                var countfeatures = features.getFeatures().length;
-                if (countfeatures == 0) {
+                var howMannyMarkers = markers.getFeatures().length;
+                if (howMannyMarkers == 0) {
                     var icon = new ol.style.Icon({
                         src: images.start
                     });
-                    feature.setId('start');
-                } else if (countfeatures == 1) {
+                    marker.setId('start');
+                } else if (howMannyMarkers == 1) {
                     var icon = new ol.style.Icon({
                         src: images.stop
                     });
-                    feature.setId('stop');
+                    marker.setId('stop');
                 }
 
-                if (countfeatures == 0 || countfeatures == 1) {
+                if (howMannyMarkers == 0 || howMannyMarkers == 1) {
                     var iconStyle = new ol.style.Style({
                         image : icon
                     });
-                    feature.setStyle(iconStyle);
-                    features.addFeature(feature);
+                    marker.setStyle(iconStyle);
+                    markers.addFeature(marker);
                 } else {
-                    features.clear(true);
+                    markers.clear(true);
                     routes.clear(true);
                 }
 
-                if (features.getFeatures().length == 2) {
+                if (markers.getFeatures().length == 2) {
                     var api = 'http://api.tmb.cat/v1/planner/plan?';
-                    var start = features.getFeatureById('start');
-                    var stop = features.getFeatureById('stop');
+                    var start = markers.getFeatureById('start');
+                    var stop = markers.getFeatureById('stop');
 
                     var url = api + 'app_key=' + write_your_app_key_here +
                                     '&app_id=' + write_your_app_id_here;
@@ -218,7 +236,15 @@
                         var itinerary = plan.itineraries[0];
                         for (var n in itinerary.legs) {
                             var leg = itinerary.legs[n];
+                            /**
+                             * We need to dedode polyline to create the linestring geometry
+                             * https://github.com/openlayers/ol3/blob/v3.3.0/src/ol/format/polylineformat.js
+                             */
                             var legGeom = ol.format.Polyline.decodeDeltas(leg.legGeometry.points, 2);
+                            /**
+                             * To create the linestring geometry it is necessary reorder the geoms
+                             * obtained from the decoding in an array of coordinates
+                             */
                             var coordinates = [];
                             for (var n= 0; n<legGeom.length - 1; n=n+2) {
                                 coordinates.push([legGeom[n + 1], legGeom[n]]);
@@ -229,11 +255,8 @@
                         }
                     };
                     getPlanRequest.overrideMimeType('application/json');
-
                     getPlanRequest.open('GET', url, true);
-
                     getPlanRequest.send();
-
                 }
             });
 
