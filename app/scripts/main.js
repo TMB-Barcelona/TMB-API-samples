@@ -15,7 +15,7 @@
 
 			for(si=0; si<chapter.samples.length; si++) {
 				sample = chapter.samples[si];
-				imgsrc = sample.thumbnail ? 'images/'+sample.thumbnail : 'images/nopreview.svg';
+				imgsrc = sample.thumbnail ? 'images/' + sample.thumbnail : 'images/nopreview.jpg';
 
 				el = '<div class="col-sm-6 col-md-4 col-lg-3 sample">' +
                     '	<h5>'+ sample.title+'</h5>'+
@@ -39,7 +39,11 @@
 		var samplesContainer = $('#samples-container');
 		samplesContainer.append(elems);
 
-		$('a[name=' + (window.location.hash).substring(1) +']').click();
+		if (window.location.hash) {
+			$('html, body').animate({
+				'scrollTop':   $('a[name=' + (window.location.hash).substring(1) +']').offset().top
+			}, 1000);
+		}
 	};
 
 	// Load specified file and invoke callback if success
