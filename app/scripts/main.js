@@ -38,6 +38,8 @@
 
 		var samplesContainer = $('#samples-container');
 		samplesContainer.append(elems);
+
+		$('a[name=' + (window.location.hash).substring(1) +']').click();
 	};
 
 	// Load specified file and invoke callback if success
