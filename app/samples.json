@@ -1,6 +1,6 @@
 [
   {
-    "title": "The map and the view",
+    "title": "Basic Maps",
     "samples": [
       {
         "title": "A basic map",
@@ -13,10 +13,16 @@
         "description": "Show the most basic way to create a map with GetFeatureInfo control",
         "url": "sample_01_basic_map_info_gist.html",
         "thumbnail": "sample_01_basic_map_info_gist.png"
+      },
+      {
+        "title": "LayerSwitcher",
+        "description": "Changing between TMB layers with a layerswitcher",
+        "url": "api_04_layerswitcher.html",
+        "thumbnail": "api_04_layerswitcher.png"
       }
     ]
   }, {
-  "title": "The layers",
+  "title": "Layers and Filters",
   "samples": [
     {
       "title": "WMS layer by GET ",
@@ -41,16 +47,10 @@
       "description": "A selector populated with WFS data filters a WMS layer",
       "url": "sample_03_basic_map_geocode_gist.html",
       "thumbnail": "sample_03_basic_map_geocode_gist.png"
-    },
-    {
-      "title": "LayerSwitcher",
-      "description": "Changing between TMB layers with a layerswitcher",
-      "url": "api_04_layerswitcher.html",
-      "thumbnail": "api_04_layerswitcher.png"
     }
   ]
 }, {
-  "title": "Timer",
+  "title": "Time",
   "samples": [
     {
       "title": "Playing with Time as variable",
@@ -66,7 +66,7 @@
     }
   ]
 }, {
-  "title": "Planner",
+  "title": "Route Plans",
   "samples": [
     {
       "title": "Calculate route between two points",
