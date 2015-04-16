@@ -19,12 +19,8 @@
 				This sample shows how to load a WFS layer. Passing layer name by GET parameter as <i><b>layer=layer_name</b></i> you can load it on map, e.g. <a href="./api_03_basic_wfs_layer.html?layer=TMB:EST_LINIA_CENTRAL">?layer=TMB:EST_LINIA_CENTRAL</a>
 			</p>
 
-			<div class="row">
-				<div id="map" class="map"></div>
-				<select class="selectfeatures">
-					<option value="0">CODI-NOM</option>
-				</select>
-			</div>
+			<div id="map" class="map"></div>
+			<div id="info" style="width:100%;"></div>
 
             include "text-muted.html"
 
@@ -39,16 +35,8 @@
 		include "ganalytics.html"
 
 		<script id="code">
+
 			'use strict';
-
-			var select = $('.selectfeatures').selectpicker({
-				style : 'btn-info',
-				size : 20
-			}).hide();
-
-			var emptySelector = function() {
-				$('.selectfeatures > option[value!=0]').remove();
-			};
 
 			/**
 			 * Get layer parameter from URL
@@ -62,7 +50,7 @@
 					return null;
 				}
 				var parametersAsString = onlyParameters.split('&');
-				var parameters = {};
+
 				for (var pair = 0; pair < parametersAsString.length; pair++) {
 					var keyAndValue = parametersAsString[pair].split('=');
 					if (keyAndValue[KEY] == key) {
@@ -113,19 +101,20 @@
 			 * @param projection
 			 */
 			var loaderFunction = function(extent, resolution, projection) {
-				var url = 'http://api.tmb.cat/v1/maps/wfs?app_key=' + write_your_app_key_here +
-					'&app_id=' + write_your_app_id_here +
-					'&service=WFS&version=1.1.0&request=GetFeature&' + 
-					'typename=' +  nameLayer + 
-					'&outputFormat=application/json&srsname=EPSG:3857&' + 
-					'bbox=' + extent.join(',') + ',EPSG:3857';
-					
+				var url = 'http://api.tmb.cat/v1/maps/wfs?' +
+						'app_key=' + write_your_app_key_here +
+						'&app_id=' + write_your_app_id_here +
+						'&service=WFS&version=1.1.0&request=GetFeature&' +
+						'typename=' +  nameLayer +
+						'&outputFormat=application/json&srsname=EPSG:3857&' +
+						'bbox=' + extent.join(',') + ',EPSG:3857';
+
 				var getFeatures = $.ajax({
 					url : url,
 					dataType : 'json'
 				});
 
-				$.when(getFeatures).done(function(response, textStatus, xqHR) {
+				$.when(getFeatures).done(function(response) {
 					loadFeatures(response);
 				});
 			};
@@ -144,56 +133,9 @@
 			 *
 			 * @param response
 			 */
-			var loadSelect = function(response) {
-
-				emptySelector();
-				for (var n in response.features) {
-					var feature = response.features[n];
-					if (feature.properties.CODI_ESTACIO && feature.properties.NOM_ESTACIO) {
-						select.append(new Option(feature.properties.CODI_ESTACIO + '-' + feature.properties.NOM_ESTACIO, feature.id));	
-					} else {
-						select.selectpicker('hide');
-						break;
-					}
-				}
-				select.selectpicker('refresh');
-			};
-
-			/**
-			 *
-			 * @param response
-			 */
 			var loadFeatures = function(response) {
 				vectorSource.addFeatures(vectorSource.readFeatures(response));
-				loadSelect(response);
 			};
-
-			var selectFeature = function(evt) {
-				var FIRST = 0;
-				var featureId = evt.currentTarget.selectedOptions[FIRST].value;
-				var feature = vectorSource.getFeatureById(featureId);
-				map.getView().setCenter(feature.getGeometry().getCoordinates());
-				map.getView().setZoom(19);
-			};
-
-			select.on('change', null, null, selectFeature);
-
-			/**
-			 *
-			 * @type {ol.style.Fill}
-			 */
-			var fill = new ol.style.Fill({
-				color : 'rgba(255,0,0,0.4)'
-			});
-
-			/**
-			 *
-			 * @type {ol.style.Stroke}
-			 */
-			var stroke = new ol.style.Stroke({
-				color : '#C90707',
-				width : 3
-			});
 
 			/**
 			 *
@@ -203,12 +145,15 @@
 				source : vectorSource,
 				style : new ol.style.Style({
 					image : new ol.style.Circle({
-						fill : fill,
-						stroke : stroke,
+						fill : new ol.style.Fill({
+							color : 'rgba(255,0,0,0.4)'
+						}),
+						stroke : new ol.style.Stroke({
+							color : '#C90707',
+							width : 3
+						}),
 						radius : 5
-					}),
-					fill : fill,
-					stroke : stroke
+					})
 				})
 			});
 
