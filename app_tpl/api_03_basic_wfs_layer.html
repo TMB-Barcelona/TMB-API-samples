@@ -88,6 +88,17 @@
 				})
 			});
 
+			var select = new ol.interaction.Select({
+				condition: ol.events.condition.click
+			});
+
+			select.on('select', function(evt) {
+				console.log(evt);
+			});
+
+			map.addInteraction(select);
+
+
 			var nameLayer = getURLParameters('layer');
 
 			if (!nameLayer) {
@@ -109,14 +120,16 @@
 						'&outputFormat=application/json&srsname=EPSG:3857&' +
 						'bbox=' + extent.join(',') + ',EPSG:3857';
 
-				var getFeatures = $.ajax({
-					url : url,
-					dataType : 'json'
-				});
+				var getFeaturesRequest = new XMLHttpRequest();
 
-				$.when(getFeatures).done(function(response) {
-					loadFeatures(response);
-				});
+				getFeaturesRequest.onreadystatechange = function() {
+					if (getFeaturesRequest.readyState != 4 || getFeaturesRequest.status != 200) return;
+					loadFeatures(getFeaturesRequest.responseText);
+				};
+				getFeaturesRequest.overrideMimeType('application/json');
+				getFeaturesRequest.open('GET', url, true);
+
+				getFeaturesRequest.send();
 			};
 
 			/**
@@ -136,7 +149,6 @@
 			var loadFeatures = function(response) {
 				vectorSource.addFeatures(vectorSource.readFeatures(response));
 			};
-
 			/**
 			 *
 			 * @type {ol.layer.Vector}
@@ -158,6 +170,7 @@
 			});
 
 			map.addLayer(vector);
+
 		</script>
 
 		include "sourcecode.html"
