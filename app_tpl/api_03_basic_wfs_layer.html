@@ -39,7 +39,8 @@
 			'use strict';
 
 			/**
-			 * Get layer parameter from URL
+			 * Function to get layer parameter from URL
+			 *
 			 * @param key
 			 * @returns {*}
 			 */
@@ -61,6 +62,7 @@
 			};
 
 			/**
+			 * Array of layers
 			 *
 			 * @type {[ol.layer.*]}
 			 */
@@ -75,6 +77,7 @@
 			})];
 
 			/**
+			 * Simple OL3 Map definition
 			 *
 			 * @type {ol.Map}
 			 */
@@ -88,6 +91,11 @@
 				})
 			});
 
+			/**
+			 * Create the interaction to manage user's event click into map
+			 *
+			 * See: http://openlayers.org/en/master/apidoc/ol.interaction.html
+			 */
 			var select = new ol.interaction.Select({
 				condition: ol.events.condition.click
 			});
@@ -98,7 +106,6 @@
 
 			map.addInteraction(select);
 
-
 			var nameLayer = getURLParameters('layer');
 
 			if (!nameLayer) {
@@ -106,7 +113,8 @@
 			};
 
 			/**
-			 * Function to get features
+			 * Function to get features. Using the VanillaJS XMLHttpRequest object to get data from server
+			 *
 			 * @param extent
 			 * @param resolution
 			 * @param projection
@@ -133,8 +141,11 @@
 			};
 
 			/**
+			 * Definition of the Vector source
 			 *
 			 * @type {ol.source.ServerVector}
+			 * DEPRECATED: Use Vector instead ServerVector with OL3 v3.5.0
+			 * See: https://github.com/openlayers/ol3/blob/master/changelog/upgrade-notes.md#new-vector-api
 			 */
 			var vectorSource = new ol.source.ServerVector({
 				format : new ol.format.GeoJSON(),
@@ -143,13 +154,16 @@
 			});
 
 			/**
+			 * Function to manage the load of the features
 			 *
 			 * @param response
 			 */
 			var loadFeatures = function(response) {
 				vectorSource.addFeatures(vectorSource.readFeatures(response));
 			};
+
 			/**
+			 * Creation of the Vector layer with the style assigned
 			 *
 			 * @type {ol.layer.Vector}
 			 */
