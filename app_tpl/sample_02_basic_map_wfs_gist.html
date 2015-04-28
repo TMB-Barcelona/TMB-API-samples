@@ -18,7 +18,10 @@ include "header.html"
         <p>This sample shows how to create a very basic map with a simple WFS petition load into the map the result from this one.</p>
 
         <div id="map" class="map"></div>
-
+        <div>
+            <label for="show_last_bbox">Show the last BBOX</label>
+            <input id="show_last_bbox" type="checkbox">
+        </div>
         <div id="info"></div>
 
         include "text-muted.html"
@@ -37,26 +40,23 @@ include "ganalytics.html"
 
     'use strict';
 
-    /**
-     *
-     * @type {[ol.layer.*]}
-     */
-    var layers = [new ol.layer.Tile({
-        source : new ol.source.TileWMS({
-            params : {
-                'LAYERS' : 'OI.OrthoimageCoverage',
-                'FORMAT' : 'image/png'
-            },
-            url : 'http://www.ign.es/wms-inspire/pnoa-ma'
-        })
-    })];
+    var lastExtent = null;
 
     /**
+     * Simple OL3 Map definition with two layers
      *
      * @type {ol.Map}
      */
     var map = new ol.Map({
-        layers : layers,
+        layers : [new ol.layer.Tile({
+            source : new ol.source.TileWMS({
+                params : {
+                    'LAYERS' : 'OI.OrthoimageCoverage',
+                    'FORMAT' : 'image/png'
+                },
+                url : 'http://www.ign.es/wms-inspire/pnoa-ma'
+            })
+        })],
         target : 'map',
         view : new ol.View({
             center : new ol.proj.transform([2.1574, 41.3987], "EPSG:4326", "EPSG:3857"),
@@ -66,44 +66,7 @@ include "ganalytics.html"
     });
 
     /**
-     * Function to get features
-     * @param extent
-     * @param resolution
-     * @param projection
-     */
-    var loaderFunction = function(extent, resolution, projection) {
-        var url = 'http://api.tmb.cat/v1/maps/wfs?app_key=' + write_your_app_key_here +
-                '&app_id=' + write_your_app_id_here +
-                '&service=WFS&version=1.1.0&request=GetFeature&' +
-                'typename=TMB:ACCESSOS' +
-                '&outputFormat=application/json&srsname=EPSG:3857&' +
-                'bbox=' + extent.join(',') + ',EPSG:3857';
-
-        var getFeaturesRequest = new XMLHttpRequest();
-
-        getFeaturesRequest.onreadystatechange = function() {
-            if (getFeaturesRequest.readyState != 4 || getFeaturesRequest.status != 200) return;
-            loadFeatures(getFeaturesRequest.responseText);
-        };
-        getFeaturesRequest.overrideMimeType('application/json');
-        getFeaturesRequest.open('GET', url, true);
-
-        getFeaturesRequest.send();
-    };
-
-    /**
-     *
-     * @type {ol.source.ServerVector}
-     */
-    var vectorSource = new ol.source.ServerVector({
-        format : new ol.format.GeoJSON(),
-        loader : loaderFunction,
-        projection : 'EPSG:3857'
-    });
-
-    var info = document.getElementById('info');
-
-    /**
+     * Function to create the feature list
      *
      * @param response
      */
@@ -118,40 +81,95 @@ include "ganalytics.html"
             list.appendChild(li);
         };
 
+        var info = document.getElementById('info');
+
         info.innerHTML = "";
         info.appendChild(list);
     };
 
     /**
+     * Shows the last petition BBOX
      *
-     * @param response
      */
-    var loadFeatures = function(response) {
-        if (response === '') {
-            return;
+
+    var bboxOverlay = new ol.FeatureOverlay({
+        map: map,
+        style: new ol.style.Style({
+            fill: new ol.style.Fill({
+                color: 'rgba(255, 255, 255, 0.6)'
+            }),
+            stroke: new ol.style.Stroke({
+                color: '#319FD3',
+                width: 1
+            })
+        })
+    });
+
+    var showTheLastBBOX = function(evt) {
+        if (evt.currentTarget.checked) {
+            var polygonFromExtent = ol.geom.Polygon.fromExtent(lastExtent);
+            var featureFromExtent = new ol.Feature({
+                geometry: polygonFromExtent,
+                name: 'extent'
+            });
+            bboxOverlay.getFeatures().clear();
+            bboxOverlay.addFeature(featureFromExtent);
+        } else {
+            bboxOverlay.getFeatures().clear();
         }
-        vectorSource.addFeatures(vectorSource.readFeatures(response));
-        loadData(JSON.parse(response));
+    };
+
+    var checkShowBBOX = document.getElementById('show_last_bbox');
+    checkShowBBOX.addEventListener('click', showTheLastBBOX);
+
+    /**
+     * Function to get features
+     *
+     * @param extent
+     * @param resolution
+     * @param projection
+     */
+    var loaderFunction = function(extent, resolution, projection) {
+        var url = 'http://api.tmb.cat/v1/maps/wfs?' +
+                'app_key=' + write_your_app_key_here +
+                '&app_id=' + write_your_app_id_here +
+                '&service=WFS&version=1.1.0&request=GetFeature&' +
+                'typename=TMB:ACCESSOS' +
+                '&outputFormat=application/json&srsname=EPSG:3857&' +
+                'bbox=' + extent.join(',') + ',EPSG:3857';
+
+        lastExtent = extent;
+
+        var getFeaturesRequest = new XMLHttpRequest();
+
+        getFeaturesRequest.onreadystatechange = function() {
+            if (getFeaturesRequest.readyState != 4 || getFeaturesRequest.status != 200) return;
+            var features = getFeaturesRequest.responseText;
+            vectorSource.addFeatures(vectorSource.readFeatures(features));
+            loadData(JSON.parse(features));
+        };
+        getFeaturesRequest.overrideMimeType('application/json');
+        getFeaturesRequest.open('GET', url, true);
+
+        getFeaturesRequest.send();
     };
 
     /**
+     * Definition of the Vector source
      *
-     * @type {ol.style.Fill}
+     * @type {ol.source.ServerVector}
+     * DEPRECATED: Use Vector instead ServerVector with OL3 v3.5.0
+     * See: https://github.com/openlayers/ol3/blob/master/changelog/upgrade-notes.md#new-vector-api
      */
-    var fill = new ol.style.Fill({
-        color : 'rgba(255,0,0,0.4)'
+    var vectorSource = new ol.source.ServerVector({
+        format : new ol.format.GeoJSON(),
+        loader : loaderFunction,
+        projection : 'EPSG:3857'
     });
 
-    /**
-     *
-     * @type {ol.style.Stroke}
-     */
-    var stroke = new ol.style.Stroke({
-        color : '#C90707',
-        width : 3
-    });
 
     /**
+     * Creation of the Vector layer with the style assigned
      *
      * @type {ol.layer.Vector}
      */
@@ -159,16 +177,20 @@ include "ganalytics.html"
         source : vectorSource,
         style : new ol.style.Style({
             image : new ol.style.Circle({
-                fill : fill,
-                stroke : stroke,
+                fill : new ol.style.Fill({
+                    color : 'rgba(255,0,0,0.4)'
+                }),
+                stroke : new ol.style.Stroke({
+                    color : '#C90707',
+                    width : 3
+                }),
                 radius : 5
-            }),
-            fill : fill,
-            stroke : stroke
+            })
         })
     });
 
     map.addLayer(vector);
+
 </script>
 
 include "sourcecode.html"
