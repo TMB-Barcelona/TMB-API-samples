@@ -1,0 +1,200 @@
+<!doctype html>
+<html class="no-js">
+    <head>
+        include "head.html"
+        <style>
+            ul.line li {
+                position: relative; /* so that pseudoelements are positioned relatively to their "li"s*/
+                font-size: 13px;
+                font-weight: bold;
+                color: #0000FF;
+            }
+
+            ul.line li:after {
+                /* bullets */
+                content: "";
+                background: #0000FF;
+                border-radius: 50%;
+                width: 11px;
+                height: 11px;
+                position: absolute;
+                left: -19px; /*adjust manually*/
+                top: 3px;
+            }
+
+            ul.line li:before {
+                /* lines */
+                content:"";
+                position: absolute;
+                left: -16px; /* adjust manually */
+                border-left: 5px solid #0000FF;
+                height: 100%;
+            }
+
+            ul.line li:first-child:before {
+               /* first li's line */
+               top: 10px; /* moves the line down so that it disappears under the bullet. Adjust manually */
+            }
+
+            ul.line li:last-child:before {
+                /* last li's line */
+               height: 12px; /* shorten the line so it goes only up to the bullet. Is equal to first-child:before's top */
+            }
+        </style>
+    </head>
+    <body>
+        <!--[if lt IE 10]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        include "header.html"
+
+        <section class="main-section">
+
+
+        <div class="container">
+
+            <h2>Bus Lines and Stops</h2>
+
+            <p>List the bus lines. When one selected, show its stops (for each line direction).</p>
+
+            <div class="row">
+                <div class="col-sm-12 col-lg-6">
+                    <select id="lines">
+                        <option value="0">(loading lines, please wait...)</option>
+                    </select>
+                    <hr>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6">
+                            <strong>
+                                <span class="origen">From</span> => <span class="desti">To</span>
+                            </strong>
+                            <ul id="anada" class="line"></ul>
+                        </div>
+                        <div class="col-xs-12 col-sm-6">
+                            <strong>
+                                <span class="desti">From</span> => <span class="origen">To</span>
+                            </strong>
+                            <ul id="tornada" class="line"></ul>
+                        </div>
+                    </div>
+                </div>
+                <div id="map" class="map col-sm-12 col-lg-6">TODO - Here be dragons</div>
+            </div>
+
+            <pre id="json"></pre>
+
+            include "text-muted.html"
+
+            include "footer.html"
+
+        </div>
+
+        </section>
+
+        include "tail.html"
+
+        include "ganalytics.html"
+        
+        <script>
+        
+        	 // HERE YOUR JS INVISIBLE CODE e.g.: app_key...
+        	  
+        </script>
+        
+        <script id="code">
+
+            var app_key = write_your_app_key_here;
+            var app_id = write_your_app_id_here;
+
+            ajax("http://api.tmb.cat/v1/transit/linies/bus/", load_lines);
+
+            // Fills a select with the lines. Reacts to a line selection querying its stops.
+            function load_lines(response) {
+                var lines = properties(response);
+                lines.sort(function(line1, line2) {
+                    return line1.CODI_LINIA - line2.CODI_LINIA;
+                })
+                var select = document.getElementById("lines");
+                select.innerHTML = '<option value="0">LINE - NAME</option>';
+                lines.forEach(function(line) {
+                    select.appendChild(new Option(line.NOM_LINIA + ' - ' + line.DESC_LINIA, line.CODI_LINIA));
+                });
+                select.onchange = function(event) {
+                    var selected_line = lines.filter(function(line) {
+                        return line.CODI_LINIA == event.target.value;
+                    })[0];
+                    [].forEach.call(document.getElementsByClassName("origen"), function(el) {
+                        el.innerHTML = selected_line.ORIGEN_LINIA;
+                    });
+                    [].forEach.call(document.getElementsByClassName("desti"), function(el) {
+                        el.innerHTML = selected_line.DESTI_LINIA;
+                    });
+                    ajax("http://api.tmb.cat/v1/transit/linies/bus/" + event.target.value + "/parades/", draw_line_stops);
+                }
+            }
+
+            // Renders two lists of stops, one for each direction.
+            function draw_line_stops(response) {
+                var stops = properties(response);
+
+                var anada = document.getElementById('anada');
+                anada.innerHTML = "";
+                stops.filter(function(stop) {    // Filter by direction
+                    return stop.SENTIT == "A";
+                }).sort(function(stop1, stop2) { // Order
+                    return stop1.ORDRE - stop2.ORDRE;
+                }).forEach(function(stop) {      // Fill the <ul> list
+                    var li = document.createElement('li');
+                    li.appendChild(document.createTextNode(stop.NOM_PARADA));
+                    anada.appendChild(li);
+                });
+
+                // Same for the opposite direction
+                var tornada = document.getElementById('tornada');
+                tornada.innerHTML = "";
+                stops.filter(function(stop) {
+                    return stop.SENTIT == "T";
+                }).sort(function(stop1, stop2) {
+                    return stop1.ORDRE - stop2.ORDRE;
+                }).forEach(function(stop) {
+                    var li = document.createElement('li');
+                    li.appendChild(document.createTextNode(stop.NOM_PARADA));
+                    tornada.appendChild(li);
+                });
+            }
+
+            // Converts a GeoJSON FeatureCollection structure into a "flat" array of object properties.
+            // Geometries are discarded.
+            function properties(featureCollection) {
+                var properties = [];
+                featureCollection.features.forEach(function(feature) {
+                    properties.push(feature.properties);
+                });
+                return properties;
+            }
+
+            // Async HTTP GET call, parses JSON response and calls 'success' or 'error' callbacks.
+            // Adds API keys to URL.
+            function ajax(url, success, error) {
+                var xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState == 4) {
+                        var response = xhr.responseText ? JSON.parse(xhr.responseText) : {};
+                        if (xhr.status == 200) {
+                            success(response);
+                        } else if (error) {
+                            error(response);
+                        }
+                    }
+                };
+                xhr.overrideMimeType('application/json');
+                xhr.open('GET', url + "?app_key=" + app_key + "&app_id=" + app_id);
+                xhr.send();
+            }
+        </script>
+
+        include "sourcecode.html"
+
+    </body>
+</html>
