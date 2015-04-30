@@ -50,6 +50,16 @@
     }
   ]
 }, {
+  "title": "Bus service",
+  "samples": [
+    {
+      "title": "Bus lines and stops",
+      "description": "List the bus lines. When one selected, show its stops (for each line direction).",
+      "url": "bus_lines_and_stops.html",
+      "thumbnail": "bus_lines_and_stops.png"
+    }
+  ]
+}, {
   "title": "Time",
   "samples": [
     {

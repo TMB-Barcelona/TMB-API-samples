@@ -1,0 +1,273 @@
+<!doctype html>
+<html class="no-js">
+    <head>
+        <meta charset="utf-8">
+        <title>The TMB-API - Code samples</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+        <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+        <link rel="icon" href="favicon.ico" type="image/x-icon">
+
+        <link rel="stylesheet" href="styles/dc2b1028.vendor.css" media="screen"/>
+
+        <link rel="stylesheet" href="styles/6f70f11d.main.css"/>
+
+        <!-- OpenLayers -->
+        <link rel="stylesheet" href="http://openlayers.org/en/v3.3.0/css/ol.css">
+        <style>
+            ul.line li {
+                position: relative; /* so that pseudoelements are positioned relatively to their "li"s*/
+                font-size: 13px;
+                font-weight: bold;
+                color: #0000FF;
+            }
+
+            ul.line li:after {
+                /* bullets */
+                content: "";
+                background: #0000FF;
+                border-radius: 50%;
+                width: 11px;
+                height: 11px;
+                position: absolute;
+                left: -19px; /*adjust manually*/
+                top: 3px;
+            }
+
+            ul.line li:before {
+                /* lines */
+                content:"";
+                position: absolute;
+                left: -16px; /* adjust manually */
+                border-left: 5px solid #0000FF;
+                height: 100%;
+            }
+
+            ul.line li:first-child:before {
+               /* first li's line */
+               top: 10px; /* moves the line down so that it disappears under the bullet. Adjust manually */
+            }
+
+            ul.line li:last-child:before {
+                /* last li's line */
+               height: 12px; /* shorten the line so it goes only up to the bullet. Is equal to first-child:before's top */
+            }
+        </style>
+    </head>
+    <body>
+        <!--[if lt IE 10]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        <header id="main-menu">
+            <div class="navbar navbar-fixed-top navbar-inverse" role="navigation">
+                <div class="container">
+                    <div class="navbar-header">
+                        <!-- Brand and toggle get grouped for better mobile display -->
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                            <span class="sr-only">Toggle Menu</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" href="http://tmb-barcelona.github.io/TMB-API-samples/"><img src="images/logoTMB-shadowy.png" title="TMB Developer Portal"></a>
+                    </div>
+                    <div class="navbar-collapse collapse">
+
+                        <ul class="nav navbar-nav">
+                            <!-- Documentació -->
+
+                            <!-- API pública -->
+
+                            <!-- API privada -->
+
+                            <!-- Exemples -->
+
+                            <!-- Cercador -->
+                            <!--<li>
+                              <a id="search" class="search" title="Cerca" href="https://developer.tmb.cat/search">
+                                <i class="icon-search"></i> Cercador
+                              </a>
+                            </li>-->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <section class="main-section">
+
+
+        <div class="container">
+
+            <h2>Bus Lines and Stops</h2>
+
+            <p>List the bus lines. When one selected, show its stops (for each line direction).</p>
+
+            <div class="row">
+                <div class="col-sm-12 col-lg-6">
+                    <select id="lines">
+                        <option value="0">(loading lines, please wait...)</option>
+                    </select>
+                    <hr>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6">
+                            <strong>
+                                <span class="origen">From</span> => <span class="desti">To</span>
+                            </strong>
+                            <ul id="anada" class="line"></ul>
+                        </div>
+                        <div class="col-xs-12 col-sm-6">
+                            <strong>
+                                <span class="desti">From</span> => <span class="origen">To</span>
+                            </strong>
+                            <ul id="tornada" class="line"></ul>
+                        </div>
+                    </div>
+                </div>
+                <div id="map" class="map col-sm-12 col-lg-6">TODO - Here be dragons</div>
+            </div>
+
+            <pre id="json"></pre>
+
+            <h4 class="text-muted">Source code:</h4>
+            <pre><code id="code_text" class="javascript"></code></pre>
+
+            <div class="footer">
+                <p><a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">Code samples for The TMB API</span> by <a xmlns:cc="http://creativecommons.org/ns#" href="http://www.tmb.cat/" property="cc:attributionName" rel="cc:attributionURL">Transports Metropolitans de Barcelona</a> is derivated from <span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">Code samples for The Book of OpenLayers3</span> by <a xmlns:cc="http://creativecommons.org/ns#" href="https://github.com/acanimal/thebookofopenlayers3" property="cc:attributionName" rel="cc:attributionURL">Antonio Santiago</a> licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>..</p>
+            </div>
+
+        </div>
+
+        </section>
+
+        <!-- OpenLayers -->
+        <script src="http://ol3js.org/en/v3.4.0/build/ol.js"></script>
+
+        <script src="scripts/e5123b5a.vendor.js"></script>
+
+        <script src="scripts/6a561692.plugins.js"></script>
+
+        <script src="scripts/87a8dd19.auth.js"></script>
+
+
+
+        <!-- Google Analytics -->
+        <script>
+          (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+          (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+          })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+          ga('create', 'Google analytics key', 'auto');
+          ga('send', 'pageview');
+
+        </script>
+        
+        <script>
+        
+        	 // HERE YOUR JS INVISIBLE CODE e.g.: app_key...
+        	  
+        </script>
+        
+        <script id="code">
+
+            var app_key = write_your_app_key_here;
+            var app_id = write_your_app_id_here;
+
+            ajax("http://api.tmb.cat/v1/transit/linies/bus/", load_lines);
+
+            // Fills a select with the lines. Reacts to a line selection querying its stops.
+            function load_lines(response) {
+                var lines = properties(response);
+                lines.sort(function(line1, line2) {
+                    return line1.CODI_LINIA - line2.CODI_LINIA;
+                })
+                var select = document.getElementById("lines");
+                select.innerHTML = '<option value="0">LINE - NAME</option>';
+                lines.forEach(function(line) {
+                    select.appendChild(new Option(line.NOM_LINIA + ' - ' + line.DESC_LINIA, line.CODI_LINIA));
+                });
+                select.onchange = function(event) {
+                    var selected_line = lines.filter(function(line) {
+                        return line.CODI_LINIA == event.target.value;
+                    })[0];
+                    [].forEach.call(document.getElementsByClassName("origen"), function(el) {
+                        el.innerHTML = selected_line.ORIGEN_LINIA;
+                    });
+                    [].forEach.call(document.getElementsByClassName("desti"), function(el) {
+                        el.innerHTML = selected_line.DESTI_LINIA;
+                    });
+                    ajax("http://api.tmb.cat/v1/transit/linies/bus/" + event.target.value + "/parades/", draw_line_stops);
+                }
+            }
+
+            // Renders two lists of stops, one for each direction.
+            function draw_line_stops(response) {
+                var stops = properties(response);
+
+                var anada = document.getElementById('anada');
+                anada.innerHTML = "";
+                stops.filter(function(stop) {    // Filter by direction
+                    return stop.SENTIT == "A";
+                }).sort(function(stop1, stop2) { // Order
+                    return stop1.ORDRE - stop2.ORDRE;
+                }).forEach(function(stop) {      // Fill the <ul> list
+                    var li = document.createElement('li');
+                    li.appendChild(document.createTextNode(stop.NOM_PARADA));
+                    anada.appendChild(li);
+                });
+
+                // Same for the opposite direction
+                var tornada = document.getElementById('tornada');
+                tornada.innerHTML = "";
+                stops.filter(function(stop) {
+                    return stop.SENTIT == "T";
+                }).sort(function(stop1, stop2) {
+                    return stop1.ORDRE - stop2.ORDRE;
+                }).forEach(function(stop) {
+                    var li = document.createElement('li');
+                    li.appendChild(document.createTextNode(stop.NOM_PARADA));
+                    tornada.appendChild(li);
+                });
+            }
+
+            // Converts a GeoJSON FeatureCollection structure into a "flat" array of object properties.
+            // Geometries are discarded.
+            function properties(featureCollection) {
+                var properties = [];
+                featureCollection.features.forEach(function(feature) {
+                    properties.push(feature.properties);
+                });
+                return properties;
+            }
+
+            // Async HTTP GET call, parses JSON response and calls 'success' or 'error' callbacks.
+            // Adds API keys to URL.
+            function ajax(url, success, error) {
+                var xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState == 4) {
+                        var response = xhr.responseText ? JSON.parse(xhr.responseText) : {};
+                        if (xhr.status == 200) {
+                            success(response);
+                        } else if (error) {
+                            error(response);
+                        }
+                    }
+                };
+                xhr.overrideMimeType('application/json');
+                xhr.open('GET', url + "?app_key=" + app_key + "&app_id=" + app_id);
+                xhr.send();
+            }
+        </script>
+
+        <script>
+        	(function() {
+        		$('#code_text').text( $('#code').text() );
+            	hljs.initHighlightingOnLoad();
+        	})();
+        </script>
+
+    </body>
+</html>
