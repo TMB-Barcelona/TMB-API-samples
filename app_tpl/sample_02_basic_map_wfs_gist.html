@@ -64,31 +64,19 @@ include "ganalytics.html"
         })
     });
 
-
     /**
-     *
-     *
-     *
-     */
-    var view = new ol.View({
-        center: new ol.proj.transform([2.1574, 41.3987], "EPSG:4326", "EPSG:3857"),
-        projection: 'EPSG:3857',
-        zoom: 16
-    });
-
-    /**
-     * Simple OL3 Map definition with the layers
+     * Simple OL3 Map definition with layers
      *
      * @type {ol.Map}
      */
     var map = new ol.Map({
         layers: [orto, accesos],
         target: 'map',
-        view: view
-    });
-
-    view.on('change:center', function(evt) {
-        console.log(evt);
+        view: new ol.View({
+            center: new ol.proj.transform([2.1574, 41.3987], "EPSG:4326", "EPSG:3857"),
+            projection: 'EPSG:3857',
+            zoom: 16
+        })
     });
 
     /**
@@ -103,7 +91,7 @@ include "ganalytics.html"
         for (var n in response.features) {
             var feature = response.features[n];
             var li = document.createElement('li');
-            li.innerHTML ='<span>' + feature.properties.CODI_ACCES + '-' + feature.properties.NOM_ACCES + '</span>';
+            li.innerHTML ='<span>' + feature.properties.ID_ESTACIO + '-' + feature.properties.NOM_ESTACIO + '</span>';
             list.appendChild(li);
         };
 
@@ -120,12 +108,12 @@ include "ganalytics.html"
      * @param resolution
      * @param projection
      */
-    var loaderFunction = function(extent, resolution, projection) {
+    var loaderFunction = function(extent) {
         var url = 'http://api.tmb.cat/v1/maps/wfs?' +
                 'app_key=' + write_your_app_key_here +
                 '&app_id=' + write_your_app_id_here +
                 '&service=WFS&version=1.1.0&request=GetFeature&' +
-                'typename=TMB:ACCESSOS' +
+                'typename=ESTACIONS' +
                 '&outputFormat=application/json&srsname=EPSG:3857&' +
                 'bbox=' + extent.join(',') + ',EPSG:3857';
 
@@ -134,7 +122,6 @@ include "ganalytics.html"
         getFeaturesRequest.onreadystatechange = function() {
             if (getFeaturesRequest.readyState != 4 || getFeaturesRequest.status != 200) return;
             var features = getFeaturesRequest.responseText;
-            vectorSource.addFeatures(vectorSource.readFeatures(features));
             loadData(JSON.parse(features));
         };
         getFeaturesRequest.overrideMimeType('application/json');
@@ -142,6 +129,18 @@ include "ganalytics.html"
 
         getFeaturesRequest.send();
     };
+
+    /**
+     * Create the interaction to manage user's event moveend into map
+     *
+     * See: http://openlayers.org/en/v3.4.0/apidoc/ol.MapEvent.html?unstable=true#event:moveend
+     */
+    map.on('moveend', function(evt) {
+        var view = evt.map.getView();
+        var extent = view.calculateExtent(map.getSize());
+        loaderFunction(extent);
+    });
+
 
 </script>
 
