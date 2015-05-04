@@ -18,7 +18,6 @@ include "header.html"
         <p>This sample shows how to create a very basic map with a simple WFS petition load into the map the result from this one.</p>
 
         <div id="map" class="map"></div>
-
         <div id="info"></div>
 
         include "text-muted.html"
@@ -37,73 +36,51 @@ include "ganalytics.html"
 
     'use strict';
 
-    /**
-     *
-     * @type {[ol.layer.*]}
-     */
-    var layers = [new ol.layer.Tile({
-        source : new ol.source.TileWMS({
-            params : {
-                'LAYERS' : 'OI.OrthoimageCoverage',
-                'FORMAT' : 'image/png'
-            },
-            url : 'http://www.ign.es/wms-inspire/pnoa-ma'
-        })
-    })];
 
     /**
+     * Layer definitions.
+     *
+     *
+     */
+    var accesos = new ol.layer.Tile({
+        source : new ol.source.TileWMS({
+            params : {
+                'LAYERS' : 'ESTACIONS_LINIA,ESTACIONS',
+                'FORMAT' : 'image/png',
+                'app_key' : write_your_app_key_here,
+                'app_id' : write_your_app_id_here,
+            },
+            url : 'http://api.tmb.cat/v1/maps/wms'
+        })
+    });
+
+    var orto = new ol.layer.Tile({
+        source: new ol.source.TileWMS({
+            params: {
+                'LAYERS': 'OI.OrthoimageCoverage',
+                'FORMAT': 'image/png'
+            },
+            url: 'http://www.ign.es/wms-inspire/pnoa-ma'
+        })
+    });
+
+    /**
+     * Simple OL3 Map definition with layers
      *
      * @type {ol.Map}
      */
     var map = new ol.Map({
-        layers : layers,
-        target : 'map',
-        view : new ol.View({
-            center : new ol.proj.transform([2.1574, 41.3987], "EPSG:4326", "EPSG:3857"),
-            projection : 'EPSG:3857',
-            zoom : 16
+        layers: [orto, accesos],
+        target: 'map',
+        view: new ol.View({
+            center: new ol.proj.transform([2.1574, 41.3987], "EPSG:4326", "EPSG:3857"),
+            projection: 'EPSG:3857',
+            zoom: 16
         })
     });
 
     /**
-     * Function to get features
-     * @param extent
-     * @param resolution
-     * @param projection
-     */
-    var loaderFunction = function(extent, resolution, projection) {
-        var url = 'http://api.tmb.cat/v1/maps/wfs?app_key=' + write_your_app_key_here +
-                '&app_id=' + write_your_app_id_here +
-                '&service=WFS&version=1.1.0&request=GetFeature&' +
-                'typename=TMB:ACCESSOS' +
-                '&outputFormat=application/json&srsname=EPSG:3857&' +
-                'bbox=' + extent.join(',') + ',EPSG:3857';
-
-        var getFeaturesRequest = new XMLHttpRequest();
-
-        getFeaturesRequest.onreadystatechange = function() {
-            if (getFeaturesRequest.readyState != 4 || getFeaturesRequest.status != 200) return;
-            loadFeatures(getFeaturesRequest.responseText);
-        };
-        getFeaturesRequest.overrideMimeType('application/json');
-        getFeaturesRequest.open('GET', url, true);
-
-        getFeaturesRequest.send();
-    };
-
-    /**
-     *
-     * @type {ol.source.ServerVector}
-     */
-    var vectorSource = new ol.source.ServerVector({
-        format : new ol.format.GeoJSON(),
-        loader : loaderFunction,
-        projection : 'EPSG:3857'
-    });
-
-    var info = document.getElementById('info');
-
-    /**
+     * Function to create the feature list
      *
      * @param response
      */
@@ -114,61 +91,57 @@ include "ganalytics.html"
         for (var n in response.features) {
             var feature = response.features[n];
             var li = document.createElement('li');
-            li.innerHTML ='<span>' + feature.properties.CODI_ACCES + '-' + feature.properties.NOM_ACCES + '</span>';
+            li.innerHTML ='<span>' + feature.properties.ID_ESTACIO + '-' + feature.properties.NOM_ESTACIO + '</span>';
             list.appendChild(li);
         };
+
+        var info = document.getElementById('info');
 
         info.innerHTML = "";
         info.appendChild(list);
     };
 
     /**
+     * Function to get features
      *
-     * @param response
+     * @param extent
+     * @param resolution
+     * @param projection
      */
-    var loadFeatures = function(response) {
-        if (response === '') {
-            return;
-        }
-        vectorSource.addFeatures(vectorSource.readFeatures(response));
-        loadData(JSON.parse(response));
+    var loaderFunction = function(extent) {
+        var url = 'http://api.tmb.cat/v1/maps/wfs?' +
+                'app_key=' + write_your_app_key_here +
+                '&app_id=' + write_your_app_id_here +
+                '&service=WFS&version=1.1.0&request=GetFeature&' +
+                'typename=ESTACIONS' +
+                '&outputFormat=application/json&srsname=EPSG:3857&' +
+                'bbox=' + extent.join(',') + ',EPSG:3857';
+
+        var getFeaturesRequest = new XMLHttpRequest();
+
+        getFeaturesRequest.onreadystatechange = function() {
+            if (getFeaturesRequest.readyState != 4 || getFeaturesRequest.status != 200) return;
+            var features = getFeaturesRequest.responseText;
+            loadData(JSON.parse(features));
+        };
+        getFeaturesRequest.overrideMimeType('application/json');
+        getFeaturesRequest.open('GET', url, true);
+
+        getFeaturesRequest.send();
     };
 
     /**
+     * Create the interaction to manage user's event moveend into map
      *
-     * @type {ol.style.Fill}
+     * See: http://openlayers.org/en/v3.4.0/apidoc/ol.MapEvent.html?unstable=true#event:moveend
      */
-    var fill = new ol.style.Fill({
-        color : 'rgba(255,0,0,0.4)'
+    map.on('moveend', function(evt) {
+        var view = evt.map.getView();
+        var extent = view.calculateExtent(map.getSize());
+        loaderFunction(extent);
     });
 
-    /**
-     *
-     * @type {ol.style.Stroke}
-     */
-    var stroke = new ol.style.Stroke({
-        color : '#C90707',
-        width : 3
-    });
 
-    /**
-     *
-     * @type {ol.layer.Vector}
-     */
-    var vector = new ol.layer.Vector({
-        source : vectorSource,
-        style : new ol.style.Style({
-            image : new ol.style.Circle({
-                fill : fill,
-                stroke : stroke,
-                radius : 5
-            }),
-            fill : fill,
-            stroke : stroke
-        })
-    });
-
-    map.addLayer(vector);
 </script>
 
 include "sourcecode.html"
