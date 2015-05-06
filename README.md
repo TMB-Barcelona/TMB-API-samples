@@ -52,7 +52,7 @@ Install npm packages:
 
 Install JavaScript dependencies:
 
-   bower install
+    bower install
 
 Now you should have new `node_modules` and `bower_components` directories with all dependencies.
 
@@ -87,11 +87,11 @@ Writing your sample
 
 Create a separate branch:
 
-   git checkout -b feature/a_cool_feature_descriptive_title
+    git checkout -b feature/a_cool_feature_descriptive_title
 
 Add a new API sample file from the boilerplate:
 
-   cp app_tpl/api_00_boilerplate_file.html app_tpl/<your_sample_file_name>.html
+    cp app_tpl/api_00_boilerplate_file.html app_tpl/<your_sample_file_name>.html
 
 Edit the new file using your favourite IDE.
 
@@ -142,21 +142,18 @@ Committing your changes
 All your changes must be commited in your separate branch `feature/a_cool_feature_descriptive_title`.
 Once finished, merge the sample to the main branch (*develop* in our case) and, optionally, delete your local feature branch:
 
+    git checkout develop
+    git merge --no-ff feature/a_cool_feature_descriptive_title
 
-```
-git checkout develop
-git merge --no-ff feature/a_cool_feature_descriptive_title
-
-git branch -d feature/a_cool_feature_descriptive_title
-git push origin develop
-```
+    git branch -d feature/a_cool_feature_descriptive_title
+    git push origin develop
 
 Updating the demo
 -----------------
 
 The demo pages are published from the gh-pages branch. To automagically update the demo, use the `grunt gh-pages` plugin:
 
-   grunt ghpages
+    grunt ghpages
 
 This plugin builds the project in a hidden directory `<ROOT_DIRECTORY>/.grunt/grunt-gh-pages/gh-pages/src`. The built contents are then automatically pushed to the gh-pages branch.
 
@@ -168,7 +165,7 @@ Some of the sample file names end with "_gist.html". Those samples are simple en
 
 The `grunt gist` task will generate the plain "gist" example files inside the `gist` directory.
 
-   grunt gist
+    grunt gist
 
 <hr/>
 
