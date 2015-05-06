@@ -20,19 +20,6 @@ You can see the code samples running at http://tmb-barcelona.github.io/TMB-API-s
 How to add a new example
 ========================
 
-Working with the project
-------------------------
-
-To keep the code simple we haven't used any frameworks (like AngularJs, Backbone or similar) neither used any template engine. Just OpenLayers and Bootstrap.
-
-Some tasks are automated with grunt.
-
-* The [`grunt-includes`](https://github.com/vanetix/grunt-includes) plugin allows file inclusion to avoid repeating some pieces of code, like header or footer, on each example.
-   * `index.html` and all the `api_*.html` files must be edited withint the `app_tpl` folder (that acts as the original templates). The `grunt includes` tasks is responsible to *compile* the template files and generate the right html files in the `app` folder.
-   * Any other content, like images or data, must be edited directly in the `app` folder.
-
-* The `grunt build` and `grunt serve` tasks will recompile the templates as well. The later will launch a local HTTP server with autoreload.
-
 Preparing the environment
 -------------------------
 
@@ -55,6 +42,7 @@ Install JavaScript dependencies:
     bower install
 
 Now you should have new `node_modules` and `bower_components` directories with all dependencies.
+
 
 Adding your API Keys
 --------------------
@@ -80,6 +68,20 @@ You **must create a JSON file named ```pass.json```** in the root folder and cop
 ```
 
 Replace "your app key here" and "your app id here" with your newly created app_key and app_id.
+
+
+Working with the project
+------------------------
+
+To keep the code simple we haven't used any frameworks (like AngularJs, Backbone or similar) neither used any template engine. Just OpenLayers and Bootstrap.
+
+Some tasks are automated with grunt.
+
+* The [`grunt-includes`](https://github.com/vanetix/grunt-includes) plugin allows file inclusion to avoid repeating some pieces of code, like header or footer, on each example.
+   * `index.html` and all the `api_*.html` files must be edited withint the `app_tpl` folder (that acts as the original templates). The `grunt includes` tasks is responsible to *compile* the template files and generate the right html files in the `app` folder.
+   * Any other content, like images or data, must be edited directly in the `app` folder.
+
+* The `grunt build` and `grunt serve` tasks will recompile the templates as well. The later will launch a local HTTP server with autoreload.
 
 
 Writing your sample
@@ -147,6 +149,7 @@ Once finished, merge the sample to the main branch (*develop* in our case) and, 
 
     git branch -d feature/a_cool_feature_descriptive_title
     git push origin develop
+
 
 Updating the demo
 -----------------
