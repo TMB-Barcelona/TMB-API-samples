@@ -19,6 +19,12 @@
         "description": "Changing between TMB layers with a layerswitcher",
         "url": "api_04_layerswitcher.html",
         "thumbnail": "api_04_layerswitcher.png"
+      },
+      {
+        "title": "A basic Map using Leaflet",
+        "description": "Show the most basic way to create a map with two layers using the Leaflet library",
+        "url": "api_07_leaflet_basic_map.html",
+        "thumbnail": "api_07_leaflet_basic_map.png"
       }
     ]
   }, {
