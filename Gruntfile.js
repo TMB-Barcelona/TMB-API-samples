@@ -300,32 +300,6 @@ module.exports = function (grunt) {
             }
         },
 
-        // By default, your `index.html`'s <!-- Usemin block --> will take care of
-        // minification. These next options are pre-configured if you do not wish
-        // to use the Usemin blocks.
-        // cssmin: {
-        //     dist: {
-        //         files: {
-        //             '<%= config.dist %>/styles/main.css': [
-        //                 '.tmp/styles/{,*/}*.css',
-        //                 '<%= config.app %>/styles/{,*/}*.css'
-        //             ]
-        //         }
-        //     }
-        // },
-        // uglify: {
-        //     dist: {
-        //         files: {
-        //             '<%= config.dist %>/scripts/scripts.js': [
-        //                 '<%= config.dist %>/scripts/scripts.js'
-        //             ]
-        //         }
-        //     }
-        // },
-        // concat: {
-        //     dist: {}
-        // },
-
         // Copies remaining files to places other tasks can use
         copy: {
             dist: {
@@ -361,9 +335,20 @@ module.exports = function (grunt) {
             gist: {
                 expand: true,
                 dot: true,
-                cwd: 'includes/gist',
-                dest: '.tmp/includes/gist/',
-                src: '{,*/}*.html'
+                cwd: 'includes',
+                dest: '.tmp/includes/',
+                src: 'gist/{,*/}*.html'
+
+            },
+            gist_: {
+                expand: true,
+                dot: true,
+                cwd: 'includes',
+                dest: '.tmp/includes/gist',
+                src: [
+                    'ol3/{,*/}*.html',
+                    'leaflet/{,*/}*.html'
+                ]
             }
         },
 
@@ -529,6 +514,7 @@ module.exports = function (grunt) {
     grunt.registerTask('gist', [
         'clean:gist',
         'copy:gist',
+        'copy:gist_',
         'replace:gist',
         'includes:gist'
     ]);

@@ -1,0 +1,169 @@
+<!doctype html>
+<html class="no-js">
+    <head>
+        include "head.html"
+
+        include "leaflet/head.html"
+    </head>
+    <body>
+        <!--[if lt IE 10]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        include "header.html"
+
+        <section class="main-section">
+
+        <div class="container">
+
+            <h2>Basic map with Leaflet</h2>
+
+            <p>This sample shows how to create a very basic map with two raster layers, CARTO SOFT TMB Layer and TMB raster layer but using Leaflet Maps library instead OL3.</p>
+
+			<!-- HERE YOUR HTML e.g.: map, select, button... -->
+			
+            <div id="map" class="map"></div>
+            
+            <!-- -->
+
+            include "text-muted.html"
+
+            include "footer.html"
+
+        </div>
+
+        </section>
+
+        include "leaflet/tail.html"
+
+        include "tail.html"
+
+        include "ganalytics.html"
+        
+        <script>
+
+            /**
+             * Ugly but necessary hack.
+             * See: https://github.com/Leaflet/Leaflet/issues/1751
+              */
+
+            L.TileLayer.WMS = L.TileLayer.extend({
+
+                defaultWmsParams: {
+                    service: 'WMS',
+                    request: 'GetMap',
+                    version: '1.1.1',
+                    layers: '',
+                    styles: '',
+                    format: 'image/jpeg',
+                    transparent: false
+                },
+
+                initialize: function (url, options) { // (String, Object)
+
+                    this._url = url;
+
+                    var wmsParams = L.extend({}, this.defaultWmsParams),
+                            tileSize = options.tileSize || this.options.tileSize;
+
+                    if (options.detectRetina && L.Browser.retina) {
+                        wmsParams.width = wmsParams.height = tileSize * 2;
+                    } else {
+                        wmsParams.width = wmsParams.height = tileSize;
+                    }
+
+                    for (var i in options) {
+                        // all keys that are not TileLayer options go to WMS params
+                        if (!this.options.hasOwnProperty(i) && i !== 'crs') {
+                            wmsParams[i] = options[i];
+                        }
+                    }
+
+                    this.wmsParams = wmsParams;
+
+                    L.setOptions(this, options);
+                },
+
+                onAdd: function (map) {
+
+                    this._crs = this.options.crs || map.options.crs;
+
+                    this._wmsVersion = parseFloat(this.wmsParams.version);
+
+                    var projectionKey = this._wmsVersion >= 1.3 ? 'crs' : 'srs';
+                    this.wmsParams[projectionKey] = this._crs.code;
+
+                    L.TileLayer.prototype.onAdd.call(this, map);
+                },
+
+                getTileUrl: function (tilePoint) { // (Point, Number) -> String
+
+                    var map = this._map,
+                            tileSize = this.options.tileSize,
+
+                            nwPoint = tilePoint.multiplyBy(tileSize),
+                            sePoint = nwPoint.add([tileSize, tileSize]),
+
+                            nw = this._crs.project(map.unproject(nwPoint, tilePoint.z)),
+                            se = this._crs.project(map.unproject(sePoint, tilePoint.z)),
+                            bbox = this._wmsVersion >= 1.3 && this._crs === L.CRS.EPSG4326 ?
+                                    [se.y, nw.x, nw.y, se.x].join(',') :
+                                    [nw.x, se.y, se.x, nw.y].join(','),
+
+                            url = L.Util.template(this._url, {s: this._getSubdomain(tilePoint)});
+
+                    //return url + L.Util.getParamString(this.wmsParams, url, true) + '&BBOX=' + bbox;
+                    return url + L.Util.getParamString(this.wmsParams, url, false) + '&BBOX=' + bbox;
+                },
+
+                setParams: function (params, noRedraw) {
+
+                    L.extend(this.wmsParams, params);
+
+                    if (!noRedraw) {
+                        this.redraw();
+                    }
+
+                    return this;
+                }
+            });
+
+            L.tileLayer.wms = function (url, options) {
+                return new L.TileLayer.WMS(url, options);
+            };
+        	  
+        </script>
+        
+        <script id="code">
+
+            /**
+             * This sample needs a little modification in L.TileLayer.WMS (see invisible code in sample)
+             * to solve problems with uppercase in TMB authentication
+             */
+
+            'use strict';
+
+            var map = L.map('map').setView([41.3987, 2.1574], 12);
+
+            L.tileLayer.wms("http://api.tmb.cat/v1/maps/gwc/wms", {
+                'layers': 'TMB:CARTO_SOFT',
+                'format': 'image/png',
+                'transparent': true,
+                'app_key': write_your_app_key_here,
+                'app_id': write_your_app_id_here
+            }).addTo(map);
+
+            L.tileLayer.wms("http://api.tmb.cat/v1/maps/wms", {
+                'layers': 'TMB:XARXA_METRO',
+                'format': 'image/png',
+                'transparent': true,
+                'app_key': write_your_app_key_here,
+                'app_id': write_your_app_id_here
+            }).addTo(map);
+        	
+        </script>
+
+        include "sourcecode.html"
+
+    </body>
+</html>
