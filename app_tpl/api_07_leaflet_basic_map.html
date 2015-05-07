@@ -47,8 +47,16 @@
         </script>
         
         <script id="code">
-        
-        	// HERE YOUR JS RUNNABLE CODE
+
+            var map = L.map('map').setView([2.1574, 41.3987], 13);
+
+            L.tileLayer.wms("http://api.tmb.cat/v1/maps/gwc/wms", {
+                'layers': 'TMB:CARTO_SOFT',
+                'format': 'image/png',
+                'transparent': true,
+                'app_key': write_your_app_key_here,
+                'app_id': write_your_app_id_here
+            }).addTo(map);
         	
         </script>
 
