@@ -30,7 +30,7 @@
         "title": "A basic Map using GMaps Library",
         "description": "Show the most basic way to create a map with two layers using the GMaps library",
         "url": "gmaps_basic_map.html",
-        "thumbnail": ""
+        "thumbnail": "gmaps_basic_map.png"
       }
     ]
   }, {
