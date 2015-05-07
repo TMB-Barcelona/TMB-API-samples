@@ -61,28 +61,26 @@
 
             <p>List the bus lines. When one selected, show its stops (for each line direction).</p>
 
-            <div class="row">
-                <div class="col-sm-12 col-lg-6">
-                    <select id="lines">
-                        <option value="0">(loading lines, please wait...)</option>
-                    </select>
-                    <hr>
-                    <div class="row">
-                        <div class="col-xs-12 col-sm-6">
-                            <strong>
-                                <span class="origen">From</span> => <span class="desti">To</span>
-                            </strong>
-                            <ul id="anada" class="line"></ul>
-                        </div>
-                        <div class="col-xs-12 col-sm-6">
-                            <strong>
-                                <span class="desti">From</span> => <span class="origen">To</span>
-                            </strong>
-                            <ul id="tornada" class="line"></ul>
-                        </div>
+            <div>
+                <label for="lines">Bus Line</label>
+                <select id="lines">
+                    <option value="0">(loading lines, please wait...)</option>
+                </select>
+                <hr/>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6">
+                        <strong>
+                            <span class="origen">From</span> => <span class="desti">To</span>
+                        </strong>
+                        <ul id="anada" class="line"></ul>
+                    </div>
+                    <div class="col-xs-12 col-sm-6">
+                        <strong>
+                            <span class="desti">From</span> => <span class="origen">To</span>
+                        </strong>
+                        <ul id="tornada" class="line"></ul>
                     </div>
                 </div>
-                <div id="map" class="map col-sm-12 col-lg-6">TODO - Here be dragons</div>
             </div>
 
             <pre id="json"></pre>
@@ -98,28 +96,26 @@
         include "tail.html"
 
         include "ganalytics.html"
-        
-        <script>
-        
-        	 // HERE YOUR JS INVISIBLE CODE e.g.: app_key...
-        	  
-        </script>
-        
+
         <script id="code">
 
-            var app_key = write_your_app_key_here;
-            var app_id = write_your_app_id_here;
+            var params = {
+                app_key: write_your_app_key_here,
+                app_id: write_your_app_id_here,
+                // Undocumented API feature, use "propertyName" to select properties to be returned (& discard geometry)
+                propertyName: "NOM_LINIA,DESC_LINIA,CODI_LINIA,ORIGEN_LINIA,DESTI_LINIA"
+            };
 
-            ajax("http://api.tmb.cat/v1/transit/linies/bus/", load_lines);
+            ajax("http://api.tmb.cat/v1/transit/linies/bus/", params, load_lines);
 
             // Fills a select with the lines. Reacts to a line selection querying its stops.
             function load_lines(response) {
                 var lines = properties(response);
                 lines.sort(function(line1, line2) {
                     return line1.CODI_LINIA - line2.CODI_LINIA;
-                })
+                });
                 var select = document.getElementById("lines");
-                select.innerHTML = '<option value="0">LINE - NAME</option>';
+                select.innerHTML = '<option value="0">(please select a line)</option>';
                 lines.forEach(function(line) {
                     select.appendChild(new Option(line.NOM_LINIA + ' - ' + line.DESC_LINIA, line.CODI_LINIA));
                 });
@@ -133,7 +129,15 @@
                     [].forEach.call(document.getElementsByClassName("desti"), function(el) {
                         el.innerHTML = selected_line.DESTI_LINIA;
                     });
-                    ajax("http://api.tmb.cat/v1/transit/linies/bus/" + event.target.value + "/parades/", draw_line_stops);
+
+                    params = {
+                        app_key: write_your_app_key_here,
+                        app_id: write_your_app_id_here,
+                        // Undocumented API feature, use "propertyName" to select properties to be returned (& discard geometry)
+                        propertyName: "SENTIT,ORDRE,NOM_PARADA"
+                    };
+                    var url = "http://api.tmb.cat/v1/transit/linies/bus/" + event.target.value + "/parades/";
+                    ajax(url, params, draw_line_stops);
                 }
             }
 
@@ -178,8 +182,14 @@
             }
 
             // Async HTTP GET call, parses JSON response and calls 'success' or 'error' callbacks.
-            // Adds API keys to URL.
-            function ajax(url, success, error) {
+            // If provided, adds params to GET URL.
+            function ajax(url, params, success, error) {
+                if(params) { // Encode params in URI
+                    url = url + "?" + Object.keys(params).map(function (name) {
+                        return name + "=" + encodeURIComponent(params[name]);
+                    }).join("&");
+                }
+
                 var xhr = new XMLHttpRequest();
                 xhr.onreadystatechange = function() {
                     if (xhr.readyState == 4) {
@@ -192,7 +202,7 @@
                     }
                 };
                 xhr.overrideMimeType('application/json');
-                xhr.open('GET', url + "?app_key=" + app_key + "&app_id=" + app_id);
+                xhr.open('GET', url);
                 xhr.send();
             }
         </script>
