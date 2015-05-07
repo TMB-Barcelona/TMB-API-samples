@@ -347,7 +347,8 @@ module.exports = function (grunt) {
                 dest: '.tmp/includes/gist',
                 src: [
                     'ol3/{,*/}*.html',
-                    'leaflet/{,*/}*.html'
+                    'leaflet/{,*/}*.html',
+                    'gmaps/{,*/}*.html'
                 ]
             }
         },
