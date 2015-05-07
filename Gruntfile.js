@@ -361,9 +361,20 @@ module.exports = function (grunt) {
             gist: {
                 expand: true,
                 dot: true,
-                cwd: 'includes/gist',
-                dest: '.tmp/includes/gist/',
-                src: '{,*/}*.html'
+                cwd: 'includes',
+                dest: '.tmp/includes/',
+                src: 'gist/{,*/}*.html'
+
+            },
+            gist_: {
+                expand: true,
+                dot: true,
+                cwd: 'includes',
+                dest: '.tmp/includes/gist',
+                src: [
+                    'ol3/{,*/}*.html',
+                    'leaflet/{,*/}*.html'
+                ]
             }
         },
 
@@ -529,6 +540,7 @@ module.exports = function (grunt) {
     grunt.registerTask('gist', [
         'clean:gist',
         'copy:gist',
+        'copy:gist_',
         'replace:gist',
         'includes:gist'
     ]);
