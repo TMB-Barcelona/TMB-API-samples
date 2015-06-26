@@ -69,8 +69,30 @@
 
             var markers = new ol.source.Vector();
 
-            var vectorLayer = new ol.layer.Vector({
+            var markersLayer = new ol.layer.Vector({
                 source: markers
+            });
+
+            var responseStyle = new ol.style.Style({
+                image : new ol.style.Circle({
+                    fill : new ol.style.Fill({
+                        color : 'rgba(255,0,0,0.4)'
+                    }),
+                    stroke : new ol.style.Stroke({
+                        color : '#C90707',
+                        width : 1
+                    }),
+                    radius : 5
+                })
+            });
+
+            var responseSource = new ol.source.Vector({
+                projection: 'EPSG:3857'
+            });
+
+            var responseLayer = new ol.layer.Vector({
+                source : responseSource,
+                style : responseStyle
             });
 
             /**
@@ -86,7 +108,8 @@
                     },
                     url : 'http://www.ign.es/wms-inspire/pnoa-ma'
                 })
-            }), vectorLayer];
+            }),
+                markersLayer, responseLayer];
 
             /**
              * Simple OL3 Map definition
@@ -104,6 +127,17 @@
             });
 
             /**
+             * Process features from WFS response. Calculates the distance and the bearing
+             *
+             */
+            var processFeatures = function(response) {
+                var WFS = new ol.format.WFS();
+                var features = WFS.readFeatures(response.responseText);
+                responseSource.clear(true);
+                responseSource.addFeatures(features);
+            };
+
+            /**
              * Apply the CQL Filter to WFS and returns the features
              *
              */
@@ -111,20 +145,17 @@
 
                 var WKT = new ol.format.WKT();
 
-                var CQLFilter = 'DWITHIN(GEOMETRY,' + [WKT.writeGeometry(geom), the_radius, the_units].join(',') + ')';
-
-                var bbox =  map.getView().calculateExtent(map.getSize());
+                var CQLFilter = 'DWITHIN(GEOMETRY,' + [WKT.writeGeometry(geom), the_radius.toString(), the_units].join(',') + ')';
 
                 var url = 'http://api.tmb.cat/v1/maps/wfs?' +
                         'app_key=' + write_your_app_key_here +
                         '&app_id=' + write_your_app_id_here +
                         '&service=WFS&version=1.1.0&request=GetFeature' +
-                        '&typename=TMB:PARADES_ACTIVES,TMB:ESTACIONS' +
-                        '&CQLFILTER=' + CQLFilter +
-                        '&outputFormat=application/json&srsname=EPSG:3857' +
-                        '&bbox=' + bbox.join(',') + ',EPSG:3857';
+                        '&typename=TMB:ESTACIONS' +
+                        '&srsName=EPSG:3857' +
+                        '&cql_filter=' + CQLFilter;
 
-                console.log(url);
+                ajax(url, processFeatures);
 
             };
 
@@ -154,40 +185,6 @@
 
                 getNearbyThings(geom);
             });
-
-            /**
-             * Definition of the Vector source
-             *
-             * @type {ol.source.ServerVector}
-             * DEPRECATED: Use Vector instead ServerVector with OL3 v3.5.0
-             * See: https://github.com/openlayers/ol3/blob/master/changelog/upgrade-notes.md#new-vector-api
-             */
-            var vectorSource = new ol.source.Vector({
-                projection : 'EPSG:3857'
-            });
-
-            /**
-             * Creation of the Vector layer with the style assigned
-             *
-             * @type {ol.layer.Vector}
-             */
-            var vector = new ol.layer.Vector({
-                source : vectorSource,
-                style : new ol.style.Style({
-                    image : new ol.style.Circle({
-                        fill : new ol.style.Fill({
-                            color : 'rgba(255,0,0,0.4)'
-                        }),
-                        stroke : new ol.style.Stroke({
-                            color : '#C90707',
-                            width : 1
-                        }),
-                        radius : 5
-                    })
-                })
-            });
-
-            map.addLayer(vector);
         	
         </script>
 
