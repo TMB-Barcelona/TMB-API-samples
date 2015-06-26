@@ -50,6 +50,29 @@
 
             'use strict';
 
+            var the_radius = 1000;
+
+            var the_units = 'meters';
+
+            function ajax(url, callback) {
+                var getFeaturesRequest = new XMLHttpRequest();
+
+                getFeaturesRequest.onreadystatechange = function () {
+                    if (getFeaturesRequest.readyState != 4 || getFeaturesRequest.status != 200) return;
+                    callback(getFeaturesRequest);
+                };
+                getFeaturesRequest.overrideMimeType('application/json');
+                getFeaturesRequest.open('GET', url, true);
+
+                getFeaturesRequest.send();
+            }
+
+            var markers = new ol.source.Vector();
+
+            var vectorLayer = new ol.layer.Vector({
+                source: markers
+            });
+
             /**
              * Array of layers
              *
@@ -63,7 +86,7 @@
                     },
                     url : 'http://www.ign.es/wms-inspire/pnoa-ma'
                 })
-            })];
+            }), vectorLayer];
 
             /**
              * Simple OL3 Map definition
@@ -81,51 +104,56 @@
             });
 
             /**
-             * Create the interaction to manage user's event click into map
+             * Apply the CQL Filter to WFS and returns the features
              *
-             * See: http://openlayers.org/en/master/apidoc/ol.interaction.html
              */
-            var select = new ol.interaction.Select({
-                condition: ol.events.condition.click
-            });
+            var getNearbyThings = function(geom) {
 
-            select.on('select', function(evt) {
+                var WKT = new ol.format.WKT();
 
-            });
+                var CQLFilter = 'DWITHIN(GEOMETRY,' + [WKT.writeGeometry(geom), the_radius, the_units].join(',') + ')';
 
-            map.addInteraction(select);
+                var bbox =  map.getView().calculateExtent(map.getSize());
 
-            function ajax(url, callback) {
-                var getFeaturesRequest = new XMLHttpRequest();
-
-                getFeaturesRequest.onreadystatechange = function () {
-                    if (getFeaturesRequest.readyState != 4 || getFeaturesRequest.status != 200) return;
-                    callback(getFeaturesRequest);
-                };
-                getFeaturesRequest.overrideMimeType('application/json');
-                getFeaturesRequest.open('GET', url, true);
-
-                getFeaturesRequest.send();
-            }
-
-            /**
-             * Function to get features. Using the VanillaJS XMLHttpRequest object to get data from server
-             *
-             * @param extent
-             * @param resolution
-             * @param projection
-             */
-            var loaderFunction = function(extent, resolution, projection) {
                 var url = 'http://api.tmb.cat/v1/maps/wfs?' +
                         'app_key=' + write_your_app_key_here +
                         '&app_id=' + write_your_app_id_here +
-                        '&service=WFS&version=1.1.0&request=GetFeature&' +
-                        'typename=TMB:ESTACIONS_LINIA' +
-                        '&outputFormat=application/json&srsname=EPSG:3857&' +
-                        'bbox=' + extent.join(',') + ',EPSG:3857';
+                        '&service=WFS&version=1.1.0&request=GetFeature' +
+                        '&typename=TMB:PARADES_ACTIVES,TMB:ESTACIONS' +
+                        '&CQLFILTER=' + CQLFilter +
+                        '&outputFormat=application/json&srsname=EPSG:3857' +
+                        '&bbox=' + bbox.join(',') + ',EPSG:3857';
 
-                ajax(url, loadFeatures);
+                console.log(url);
+
             };
+
+            /**
+             * Create the interaction to manage user's event click into map
+             *
+             */
+            var iconStyle = new ol.style.Style({
+                image : new ol.style.Icon({
+                    anchor: [0.6, 0.95],
+                    src: "images/pushpin.png"
+                })
+            });
+
+            map.on('click', function(evt) {
+
+                markers.clear(true);
+
+                var geom = new ol.geom.Point(
+                        evt.coordinate
+                );
+
+                var marker = new ol.Feature(geom);
+
+                marker.setStyle(iconStyle);
+                markers.addFeature(marker);
+
+                getNearbyThings(geom);
+            });
 
             /**
              * Definition of the Vector source
@@ -134,21 +162,9 @@
              * DEPRECATED: Use Vector instead ServerVector with OL3 v3.5.0
              * See: https://github.com/openlayers/ol3/blob/master/changelog/upgrade-notes.md#new-vector-api
              */
-            var vectorSource = new ol.source.ServerVector({
-                format : new ol.format.GeoJSON(),
-                loader : loaderFunction,
+            var vectorSource = new ol.source.Vector({
                 projection : 'EPSG:3857'
             });
-
-            /**
-             * Function to manage the load of the features
-             *
-             * @param response
-             */
-            var loadFeatures = function(response) {
-
-                vectorSource.addFeatures(vectorSource.readFeatures(response.responseText));
-            };
 
             /**
              * Creation of the Vector layer with the style assigned
@@ -164,7 +180,7 @@
                         }),
                         stroke : new ol.style.Stroke({
                             color : '#C90707',
-                            width : 3
+                            width : 1
                         }),
                         radius : 5
                     })
