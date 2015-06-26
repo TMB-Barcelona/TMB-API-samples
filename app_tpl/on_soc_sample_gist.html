@@ -1,0 +1,181 @@
+<!doctype html>
+<html class="no-js">
+    <head>
+        include "head.html"
+
+        include "ol3/head.html"
+    </head>
+    <body>
+        <!--[if lt IE 10]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        include "header.html"
+
+        <section class="main-section">
+
+        <div class="container">
+
+            <h2>Where I am?</h2>
+
+            <p>Discover nearby services</p>
+
+			<!-- HERE YOUR HTML e.g.: map, select, button... -->
+			
+            <div id="map" class="map"></div>
+            
+            <!-- -->
+
+            include "text-muted.html"
+
+            include "footer.html"
+
+        </div>
+
+        </section>
+
+        include "ol3/tail.html"
+
+        include "tail.html"
+
+        include "ganalytics.html"
+        
+        <script>
+        
+        	 // HERE YOUR JS INVISIBLE CODE e.g.: app_key...
+        	  
+        </script>
+        
+        <script id="code">
+
+            'use strict';
+
+            /**
+             * Array of layers
+             *
+             * @type {[ol.layer.*]}
+             */
+            var layers = [new ol.layer.Tile({
+                source : new ol.source.TileWMS({
+                    params : {
+                        'LAYERS' : 'OI.OrthoimageCoverage',
+                        'FORMAT' : 'image/png'
+                    },
+                    url : 'http://www.ign.es/wms-inspire/pnoa-ma'
+                })
+            })];
+
+            /**
+             * Simple OL3 Map definition
+             *
+             * @type {ol.Map}
+             */
+            var map = new ol.Map({
+                layers : layers,
+                target : 'map',
+                view : new ol.View({
+                    center : new ol.proj.transform([2.1574, 41.3987], "EPSG:4326", "EPSG:3857"),
+                    projection : 'EPSG:3857',
+                    zoom : 16
+                })
+            });
+
+            /**
+             * Create the interaction to manage user's event click into map
+             *
+             * See: http://openlayers.org/en/master/apidoc/ol.interaction.html
+             */
+            var select = new ol.interaction.Select({
+                condition: ol.events.condition.click
+            });
+
+            select.on('select', function(evt) {
+
+            });
+
+            map.addInteraction(select);
+
+            function ajax(url, callback) {
+                var getFeaturesRequest = new XMLHttpRequest();
+
+                getFeaturesRequest.onreadystatechange = function () {
+                    if (getFeaturesRequest.readyState != 4 || getFeaturesRequest.status != 200) return;
+                    callback(getFeaturesRequest);
+                };
+                getFeaturesRequest.overrideMimeType('application/json');
+                getFeaturesRequest.open('GET', url, true);
+
+                getFeaturesRequest.send();
+            }
+
+            /**
+             * Function to get features. Using the VanillaJS XMLHttpRequest object to get data from server
+             *
+             * @param extent
+             * @param resolution
+             * @param projection
+             */
+            var loaderFunction = function(extent, resolution, projection) {
+                var url = 'http://api.tmb.cat/v1/maps/wfs?' +
+                        'app_key=' + write_your_app_key_here +
+                        '&app_id=' + write_your_app_id_here +
+                        '&service=WFS&version=1.1.0&request=GetFeature&' +
+                        'typename=TMB:ESTACIONS_LINIA' +
+                        '&outputFormat=application/json&srsname=EPSG:3857&' +
+                        'bbox=' + extent.join(',') + ',EPSG:3857';
+
+                ajax(url, loadFeatures);
+            };
+
+            /**
+             * Definition of the Vector source
+             *
+             * @type {ol.source.ServerVector}
+             * DEPRECATED: Use Vector instead ServerVector with OL3 v3.5.0
+             * See: https://github.com/openlayers/ol3/blob/master/changelog/upgrade-notes.md#new-vector-api
+             */
+            var vectorSource = new ol.source.ServerVector({
+                format : new ol.format.GeoJSON(),
+                loader : loaderFunction,
+                projection : 'EPSG:3857'
+            });
+
+            /**
+             * Function to manage the load of the features
+             *
+             * @param response
+             */
+            var loadFeatures = function(response) {
+
+                vectorSource.addFeatures(vectorSource.readFeatures(response.responseText));
+            };
+
+            /**
+             * Creation of the Vector layer with the style assigned
+             *
+             * @type {ol.layer.Vector}
+             */
+            var vector = new ol.layer.Vector({
+                source : vectorSource,
+                style : new ol.style.Style({
+                    image : new ol.style.Circle({
+                        fill : new ol.style.Fill({
+                            color : 'rgba(255,0,0,0.4)'
+                        }),
+                        stroke : new ol.style.Stroke({
+                            color : '#C90707',
+                            width : 3
+                        }),
+                        radius : 5
+                    })
+                })
+            });
+
+            map.addLayer(vector);
+        	
+        </script>
+
+        include "sourcecode.html"
+
+    </body>
+</html>
