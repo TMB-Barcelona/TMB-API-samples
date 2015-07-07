@@ -73,7 +73,8 @@
     {
       "title": "Where I am?",
       "description": "Discover nearby services",
-      "url": "on_soc_sample_gist.html"
+      "url": "on_soc_sample_gist.html",
+      "thumbnail": "on_soc_sample_gist.png"
     }
   ]
 }, {
