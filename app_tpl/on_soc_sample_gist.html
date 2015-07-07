@@ -55,9 +55,11 @@
             // Needed to convert coordinates between 23031 and others CRS
             proj4.defs("EPSG:23031", "+proj=utm +zone=31 +ellps=intl +units=m +no_defs +towgs84=-133.92674,-142.30803,-173.40718,-2.0997452004041200,-0.2077827089562690,-0.0792706590128528,11.860425");
 
-            var the_radius = 1000;
+            var theRadius = 1000;
 
-            var the_units = 'meters';
+            var theUnits = 'meters';
+
+            var theCenter;
 
             /**
              * Helper AJAX Function based in Vanilla JS
@@ -75,10 +77,10 @@
                 getFeaturesRequest.send();
             }
 
-            var markers = new ol.source.Vector();
+            var pushpin = new ol.source.Vector();
 
-            var markersLayer = new ol.layer.Vector({
-                source: markers
+            var pushpinLayer = new ol.layer.Vector({
+                source: pushpin
             });
 
             var responseStyle = new ol.style.Style({
@@ -103,6 +105,12 @@
                 style : responseStyle
             });
 
+            var from23031to3857 = new ol.proj.getTransform("EPSG:23031", "EPSG:3857");
+
+            responseSource.on('addfeature', function(evt) {
+                evt.feature.getGeometry().applyTransform(from23031to3857);
+            });
+
             /**
              * Array of layers
              *
@@ -117,7 +125,7 @@
                     url : 'http://www.ign.es/wms-inspire/pnoa-ma'
                 })
             }),
-                markersLayer, responseLayer];
+                pushpinLayer, responseLayer];
 
             /**
              * Simple OL3 Map definition
@@ -134,13 +142,29 @@
                 })
             });
 
+            var getBearing = function(center, coord) {
+                var bearing = (90 - Math.atan2(center[0] - coord[0], center[1] - coord[1]) * 180 / Math.PI) % 360;
+                return Math.round(bearing);
+            };
+
             /**
              * Process features from WFS response. Calculates the distance and the bearing
              *
              */
             var processFeatures = function(response) {
-                var WFS = new ol.format.WFS();
-                var features = WFS.readFeatures(response.responseText);
+                var GeoJSON = new ol.format.GeoJSON({
+                    defaultDataProjection: "EPSG:23031"
+                });
+                var featureCollection = JSON.parse(response.responseText);
+
+                for (var n in featureCollection.features) {
+                    var feature = featureCollection.features[n];
+                    var coord = feature.geometry.coordinates;
+                    feature.properties['distance'] = new ol.geom.LineString([theCenter, coord]).getLength();
+                    feature.properties['bearing'] = getBearing(theCenter, coord);
+                }
+                var features = GeoJSON.readFeatures(featureCollection);
+
                 responseSource.clear(true);
                 responseSource.addFeatures(features);
             };
@@ -153,19 +177,22 @@
 
                 var WKT = new ol.format.WKT();
 
+                theCenter = new ol.proj.transform(coord, "EPSG:3857", "EPSG:23031");
+
                 var geom23031 = new ol.geom.Point(
-                        new ol.proj.transform(coord, "EPSG:3857", "EPSG:23031")
+                        theCenter
                 );
 
-                var CQLFilter = 'DWITHIN(GEOMETRY,' + [WKT.writeGeometry(geom23031), the_radius.toString(), the_units].join(',') + ')';
+                var CQLFilter = 'DWITHIN(GEOMETRY,' + [WKT.writeGeometry(geom23031), theRadius.toString(), theUnits].join(',') + ')';
 
                 var url = 'http://api.tmb.cat/v1/maps/wfs?' +
                         'app_key=' + write_your_app_key_here +
                         '&app_id=' + write_your_app_id_here +
                         '&service=WFS&version=1.1.0&request=GetFeature' +
                         '&typename=TMB:ESTACIONS,TMB:PARADES_ACTIVES' +
-                        '&srsName=EPSG:3857' +
-                        '&cql_filter=' + CQLFilter;
+                        '&srsName=EPSG:23031' +
+                        '&cql_filter=' + CQLFilter +
+                        '&outputFormat=application/json';
 
                 ajax(url, processFeatures);
 
@@ -184,7 +211,7 @@
 
             map.on('click', function(evt) {
 
-                markers.clear(true);
+                pushpin.clear(true);
 
                 var geom = new ol.geom.Point(
                         evt.coordinate
@@ -193,7 +220,7 @@
                 var marker = new ol.Feature(geom);
 
                 marker.setStyle(iconStyle);
-                markers.addFeature(marker);
+                pushpin.addFeature(marker);
 
                 getNearbyThings(evt.coordinate);
             });
