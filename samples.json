@@ -31,12 +31,6 @@
         "description": "Show the most basic way to create a map with two layers using the GMaps library",
         "url": "gmaps_basic_map.html",
         "thumbnail": "gmaps_basic_map.png"
-      },
-      {
-        "title": "Bicing Integration",
-        "description": "Map showing the status of Bicing stops",
-        "url": "bicing.html",
-        "thumbnail": ""
       }
     ]
   }, {
@@ -75,6 +69,12 @@
       "description": "List the bus lines. When one selected, show its stops (for each line direction).",
       "url": "bus_lines_and_stops.html",
       "thumbnail": "bus_lines_and_stops.png"
+    },
+    {
+      "title": "Where I am?",
+      "description": "Discover nearby services",
+      "url": "on_soc_sample_gist.html",
+      "thumbnail": "on_soc_sample_gist.png"
     }
   ]
 }, {

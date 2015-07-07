@@ -1,0 +1,340 @@
+<!doctype html>
+<html class="no-js">
+    <head>
+        <meta charset="utf-8">
+        <title>The TMB-API - Code samples</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+        <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+        <link rel="icon" href="favicon.ico" type="image/x-icon">
+
+        <link rel="stylesheet" href="styles/53d0747b.vendor.css"/>
+
+        <link rel="stylesheet" href="styles/6f70f11d.main.css"/>
+
+        <!-- OpenLayers -->
+        <link rel="stylesheet" href="http://openlayers.org/en/v3.3.0/css/ol.css">
+    </head>
+    <body>
+        <!--[if lt IE 10]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        <header id="main-menu">
+            <div class="navbar navbar-fixed-top navbar-inverse" role="navigation">
+                <div class="container">
+                    <div class="navbar-header">
+                        <!-- Brand and toggle get grouped for better mobile display -->
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                            <span class="sr-only">Toggle Menu</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" href="http://tmb-barcelona.github.io/TMB-API-samples/"><img src="images/logoTMB-shadowy.png" title="TMB Developer Portal"></a>
+                    </div>
+                    <div class="navbar-collapse collapse">
+
+                        <ul class="nav navbar-nav">
+                            <!-- Documentació -->
+
+                            <!-- API pública -->
+
+                            <!-- API privada -->
+
+                            <!-- Exemples -->
+
+                            <!-- Cercador -->
+                            <!--<li>
+                              <a id="search" class="search" title="Cerca" href="https://developer.tmb.cat/search">
+                                <i class="icon-search"></i> Cercador
+                              </a>
+                            </li>-->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <section class="main-section">
+
+        <div class="container">
+
+            <h2>Where I am?</h2>
+
+            <p>Discover nearby services from layers TMB:ESTACIONS and TMB:PARADES_ACTIVES. This sample shows the nearby stations and stops inside a 1000 meters radius from the user pushpin</p>
+
+			<!-- HERE YOUR HTML e.g.: map, select, button... -->
+			
+            <div id="map" class="map"></div>
+            
+            <!-- -->
+
+            <h4 class="text-muted">Source code:</h4>
+            <pre><code id="code_text" class="javascript"></code></pre>
+
+            <div class="footer">
+                <p><a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">Code samples for The TMB API</span> by <a xmlns:cc="http://creativecommons.org/ns#" href="http://www.tmb.cat/" property="cc:attributionName" rel="cc:attributionURL">Transports Metropolitans de Barcelona</a> is derivated from <span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">Code samples for The Book of OpenLayers3</span> by <a xmlns:cc="http://creativecommons.org/ns#" href="https://github.com/acanimal/thebookofopenlayers3" property="cc:attributionName" rel="cc:attributionURL">Antonio Santiago</a> licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>..</p>
+            </div>
+
+        </div>
+
+        </section>
+
+        <!-- OpenLayers -->
+        <script src="http://ol3js.org/en/v3.4.0/build/ol.js"></script>
+
+
+
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/proj4js/2.2.1/proj4.js" type="text/javascript"></script>
+
+        <script src="scripts/9016e7fe.vendor.js"></script>
+
+        <script src="scripts/6a561692.plugins.js"></script>
+
+        <script src="scripts/87a8dd19.auth.js"></script>
+
+
+
+        <!-- Google Analytics -->
+        <script>
+          (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+          (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+          })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+          ga('create', 'Google analytics key', 'auto');
+          ga('send', 'pageview');
+
+        </script>
+        
+        <script>
+        
+        	 // HERE YOUR JS INVISIBLE CODE e.g.: app_key...
+        	  
+        </script>
+        
+        <script id="code">
+
+            'use strict';
+
+            // Needed to convert coordinates between 23031 and others CRS
+            proj4.defs("EPSG:23031", "+proj=utm +zone=31 +ellps=intl +units=m +no_defs +towgs84=-133.92674,-142.30803,-173.40718,-2.0997452004041200,-0.2077827089562690,-0.0792706590128528,11.860425");
+
+            var theRadius = 1000;
+
+            var theUnits = 'meters';
+
+            var theCenter;
+
+            /**
+             * Helper AJAX Function based in Vanilla JS
+             */
+            function ajax(url, callback) {
+                var getFeaturesRequest = new XMLHttpRequest();
+
+                getFeaturesRequest.onreadystatechange = function () {
+                    if (getFeaturesRequest.readyState != 4 || getFeaturesRequest.status != 200) return;
+                    callback(getFeaturesRequest);
+                };
+                getFeaturesRequest.overrideMimeType('application/json');
+                getFeaturesRequest.open('GET', url, true);
+
+                getFeaturesRequest.send();
+            }
+
+            var pushpin = new ol.source.Vector();
+
+            var pushpinLayer = new ol.layer.Vector({
+                source: pushpin
+            });
+
+            /**
+             * Functions to create styles
+             * See: http://openlayers.org/en/v3.7.0/examples/vector-labels.html
+             *
+             */
+            var createTextStyle = function(feature, resolution) {
+                var align = 'center';
+                var baseline = 'bottom';
+                var size = '14px';
+                var offsetX = 0;
+                var offsetY = 22;
+                var weight = 'bold';
+                var fillColor = '#ffffff';
+                var font = weight + ' ' + size + ' ' + 'arial';
+
+                var getText = function(feature, resolution) {
+                    var maxResolution = 4;
+                    var text = feature.get('distance') + ' m ' + feature.get('bearing') + ' º' ;
+
+                    if (resolution > maxResolution) {
+                        text = '';
+                    }
+
+                    return text;
+                };
+
+                return new ol.style.Text({
+                    textAlign: align,
+                    textBaseline: baseline,
+                    font: font,
+                    text: getText(feature, resolution),
+                    fill: new ol.style.Fill({color: fillColor}),
+                    offsetX: offsetX,
+                    offsetY: offsetY
+                });
+            };
+
+            var createPointStyleFunction = function() {
+                return function(feature, resolution) {
+                    var style = new ol.style.Style({
+                        image: new ol.style.Circle({
+                            radius: 6,
+                            fill: new ol.style.Fill({color: 'rgba(255, 0, 0, 0.5)'}),
+                            stroke: new ol.style.Stroke({color: 'white', width: 1})
+                        }),
+                        text: createTextStyle(feature, resolution)
+                    });
+                    return [style];
+                };
+            };
+
+            var responseSource = new ol.source.Vector({
+                projection: 'EPSG:3857'
+            });
+
+            var responseLayer = new ol.layer.Vector({
+                source : responseSource,
+                style : createPointStyleFunction()
+            });
+
+            var from23031to3857 = new ol.proj.getTransform("EPSG:23031", "EPSG:3857");
+
+            responseSource.on('addfeature', function(evt) {
+                evt.feature.getGeometry().applyTransform(from23031to3857);
+            });
+
+            /**
+             * Array of layers
+             *
+             */
+            var layers = [new ol.layer.Tile({
+                source : new ol.source.TileWMS({
+                    params : {
+                        'LAYERS' : 'OI.OrthoimageCoverage',
+                        'FORMAT' : 'image/png'
+                    },
+                    url : 'http://www.ign.es/wms-inspire/pnoa-ma'
+                })
+            }),
+                pushpinLayer, responseLayer];
+
+            /**
+             * Simple OL3 Map definition
+             *
+             */
+            var map = new ol.Map({
+                layers : layers,
+                target : 'map',
+                view : new ol.View({
+                    center : new ol.proj.transform([2.1574, 41.3987], "EPSG:4326", "EPSG:3857"),
+                    projection : 'EPSG:3857',
+                    zoom : 16
+                })
+            });
+
+            var getBearing = function(center, coord) {
+                var bearing = (90 - Math.atan2(coord[1] - center[1], coord[0] - center[0]) * 180 / Math.PI) % 360;
+                return Math.round(bearing);
+            };
+
+            /**
+             * Process features from WFS response. Calculates the distance and the bearing
+             *
+             */
+            var processFeatures = function(response) {
+                var GeoJSON = new ol.format.GeoJSON({
+                    defaultDataProjection: "EPSG:23031"
+                });
+                var featureCollection = JSON.parse(response.responseText);
+
+                for (var n in featureCollection.features) {
+                    var feature = featureCollection.features[n];
+                    var coord = feature.geometry.coordinates;
+                    feature.properties['distance'] = Math.round(new ol.geom.LineString([theCenter, coord]).getLength());
+                    feature.properties['bearing'] = getBearing(theCenter, coord);
+                }
+                var features = GeoJSON.readFeatures(featureCollection);
+
+                responseSource.clear(true);
+                responseSource.addFeatures(features);
+            };
+
+            /**
+             * Apply the CQL Filter to WFS and returns the features
+             *
+             */
+            var getNearbyThings = function(coord) {
+
+                var WKT = new ol.format.WKT();
+
+                theCenter = new ol.proj.transform(coord, "EPSG:3857", "EPSG:23031");
+
+                var geom23031 = new ol.geom.Point(
+                        theCenter
+                );
+
+                var CQLFilter = 'DWITHIN(GEOMETRY,' + [WKT.writeGeometry(geom23031), theRadius.toString(), theUnits].join(',') + ')';
+
+                var url = 'http://api.tmb.cat/v1/maps/wfs?' +
+                        'app_key=' + write_your_app_key_here +
+                        '&app_id=' + write_your_app_id_here +
+                        '&service=WFS&version=1.1.0&request=GetFeature' +
+                        '&typename=TMB:ESTACIONS,TMB:PARADES_ACTIVES' +
+                        '&srsName=EPSG:23031' +
+                        '&cql_filter=' + CQLFilter +
+                        '&outputFormat=application/json';
+
+                ajax(url, processFeatures);
+
+            };
+
+            /**
+             * Create the interaction to manage user's event click into map
+             *
+             */
+            var iconStyle = new ol.style.Style({
+                image : new ol.style.Icon({
+                    anchor: [0.6, 0.95],
+                    src: "images/pushpin.png"
+                })
+            });
+
+            map.on('click', function(evt) {
+
+                pushpin.clear(true);
+
+                var geom = new ol.geom.Point(
+                        evt.coordinate
+                );
+
+                var marker = new ol.Feature(geom);
+
+                marker.setStyle(iconStyle);
+                pushpin.addFeature(marker);
+
+                getNearbyThings(evt.coordinate);
+            });
+        	
+        </script>
+
+        <script>
+        	(function() {
+        		$('#code_text').text( $('#code').text() );
+            	hljs.initHighlightingOnLoad();
+        	})();
+        </script>
+
+    </body>
+</html>
