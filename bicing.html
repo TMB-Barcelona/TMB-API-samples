@@ -1,0 +1,237 @@
+<!doctype html>
+<html class="no-js">
+    <head>
+        <meta charset="utf-8">
+        <title>The TMB-API - Code samples</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+        <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+        <link rel="icon" href="favicon.ico" type="image/x-icon">
+
+        <link rel="stylesheet" href="styles/53d0747b.vendor.css"/>
+
+        <link rel="stylesheet" href="styles/6f70f11d.main.css"/>
+
+        <!-- include "ol3/head.html or include "leaflet/head.html" -->
+    </head>
+    <body>
+        <!--[if lt IE 10]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        <header id="main-menu">
+            <div class="navbar navbar-fixed-top navbar-inverse" role="navigation">
+                <div class="container">
+                    <div class="navbar-header">
+                        <!-- Brand and toggle get grouped for better mobile display -->
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                            <span class="sr-only">Toggle Menu</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" href="http://tmb-barcelona.github.io/TMB-API-samples/"><img src="images/logoTMB-shadowy.png" title="TMB Developer Portal"></a>
+                    </div>
+                    <div class="navbar-collapse collapse">
+
+                        <ul class="nav navbar-nav">
+                            <!-- Documentació -->
+
+                            <!-- API pública -->
+
+                            <!-- API privada -->
+
+                            <!-- Exemples -->
+
+                            <!-- Cercador -->
+                            <!--<li>
+                              <a id="search" class="search" title="Cerca" href="https://developer.tmb.cat/search">
+                                <i class="icon-search"></i> Cercador
+                              </a>
+                            </li>-->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <section class="main-section">
+
+        <div class="container">
+
+            <h2>Integration with Bicing</h2>
+
+            <p>Map showing the status of Bicing stops</p>
+
+			<!-- HERE YOUR HTML e.g.: map, select, button... -->
+			
+            <div id="map" class="map"></div>
+            
+            <!-- -->
+
+            <h4 class="text-muted">Source code:</h4>
+            <pre><code id="code_text" class="javascript"></code></pre>
+
+            <div class="footer">
+                <p><a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">Code samples for The TMB API</span> by <a xmlns:cc="http://creativecommons.org/ns#" href="http://www.tmb.cat/" property="cc:attributionName" rel="cc:attributionURL">Transports Metropolitans de Barcelona</a> is derivated from <span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">Code samples for The Book of OpenLayers3</span> by <a xmlns:cc="http://creativecommons.org/ns#" href="https://github.com/acanimal/thebookofopenlayers3" property="cc:attributionName" rel="cc:attributionURL">Antonio Santiago</a> licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>..</p>
+            </div>
+
+        </div>
+
+        </section>
+
+        <!-- include "ol3/tail.html" or include "leaflet/tail.html" -->
+
+        <script src="scripts/9016e7fe.vendor.js"></script>
+
+        <script src="scripts/6a561692.plugins.js"></script>
+
+        <script src="scripts/87a8dd19.auth.js"></script>
+
+
+
+        <!-- Google Analytics -->
+        <script>
+          (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+          (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+          })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+          ga('create', 'Google analytics key', 'auto');
+          ga('send', 'pageview');
+
+        </script>
+        
+        <script>
+        
+        	 // HERE YOUR JS INVISIBLE CODE e.g.: app_key...
+        	  
+        </script>
+        
+        <script id="code">
+
+            'use strict';
+
+            /**
+             * Array of layers
+             *
+             * @type {[ol.layer.*]}
+             */
+            var layers = [new ol.layer.Tile({
+                source : new ol.source.TileWMS({
+                    params : {
+                        'LAYERS' : 'OI.OrthoimageCoverage',
+                        'FORMAT' : 'image/png'
+                    },
+                    url : 'http://www.ign.es/wms-inspire/pnoa-ma'
+                })
+            })];
+
+            /**
+             * Simple OL3 Map definition
+             *
+             * @type {ol.Map}
+             */
+            var map = new ol.Map({
+                layers : layers,
+                target : 'map',
+                view : new ol.View({
+                    center : new ol.proj.transform([2.1574, 41.3987], "EPSG:4326", "EPSG:3857"),
+                    projection : 'EPSG:3857',
+                    zoom : 16
+                })
+            });
+
+            /**
+             * Create the interaction to manage user's event click into map
+             *
+             * See: http://openlayers.org/en/master/apidoc/ol.interaction.html
+             */
+            var select = new ol.interaction.Select({
+                condition: ol.events.condition.click
+            });
+
+            select.on('select', function(evt) {
+
+            });
+
+            map.addInteraction(select);
+
+            /**
+             * Function to get features. Using the VanillaJS XMLHttpRequest object to get data from server
+             *
+             * @param extent
+             * @param resolution
+             * @param projection
+             */
+            var loaderFunction = function(extent, resolution, projection) {
+                var url = 'https://www.bicing.cat/availability_map/getJsonObject';
+
+                var getFeaturesRequest = new XMLHttpRequest();
+
+                getFeaturesRequest.onreadystatechange = function() {
+                    if (getFeaturesRequest.readyState != 4 || getFeaturesRequest.status != 200) return;
+                    loadFeatures(getFeaturesRequest.responseText);
+                };
+                getFeaturesRequest.overrideMimeType('application/json');
+                getFeaturesRequest.open('GET', url, true);
+
+                getFeaturesRequest.send();
+            };
+
+            /**
+             * Definition of the Vector source
+             *
+             * @type {ol.source.ServerVector}
+             * DEPRECATED: Use Vector instead ServerVector with OL3 v3.5.0
+             * See: https://github.com/openlayers/ol3/blob/master/changelog/upgrade-notes.md#new-vector-api
+             */
+            var vectorSource = new ol.source.ServerVector({
+                format : new ol.format.GeoJSON(),
+                loader : loaderFunction,
+                projection : 'EPSG:3857'
+            });
+
+            /**
+             * Function to manage the load of the features
+             *
+             * @param response
+             */
+            var loadFeatures = function(response) {
+                vectorSource.addFeatures(vectorSource.readFeatures(response));
+            };
+
+            /**
+             * Creation of the Vector layer with the style assigned
+             *
+             * @type {ol.layer.Vector}
+             */
+            var vector = new ol.layer.Vector({
+                source : vectorSource,
+                style : new ol.style.Style({
+                    image : new ol.style.Circle({
+                        fill : new ol.style.Fill({
+                            color : 'rgba(255,0,0,0.4)'
+                        }),
+                        stroke : new ol.style.Stroke({
+                            color : '#C90707',
+                            width : 3
+                        }),
+                        radius : 5
+                    })
+                })
+            });
+
+            map.addLayer(vector);
+        	
+        </script>
+
+        <script>
+        	(function() {
+        		$('#code_text').text( $('#code').text() );
+            	hljs.initHighlightingOnLoad();
+        	})();
+        </script>
+
+    </body>
+</html>
