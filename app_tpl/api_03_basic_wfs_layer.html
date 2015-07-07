@@ -163,6 +163,7 @@
 			 * @param response
 			 */
 			var loadFeatures = function(response) {
+				vectorSource.clear(true);
 				vectorSource.addFeatures(vectorSource.readFeatures(response));
 			};
 
