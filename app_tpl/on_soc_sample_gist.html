@@ -83,18 +83,56 @@
                 source: pushpin
             });
 
-            var responseStyle = new ol.style.Style({
-                image : new ol.style.Circle({
-                    fill : new ol.style.Fill({
-                        color : 'rgba(255,255,255,0.8)'
-                    }),
-                    stroke : new ol.style.Stroke({
-                        color : '#C90707',
-                        width : 3
-                    }),
-                    radius : 5
-                })
-            });
+            /**
+             * Functions to create styles
+             * See: http://openlayers.org/en/v3.7.0/examples/vector-labels.html
+             *
+             */
+            var createTextStyle = function(feature, resolution) {
+                var align = 'center';
+                var baseline = 'bottom';
+                var size = '14px';
+                var offsetX = 0;
+                var offsetY = 22;
+                var weight = 'bold';
+                var fillColor = '#ffffff';
+                var font = weight + ' ' + size + ' ' + 'arial';
+
+                var getText = function(feature, resolution) {
+                    var maxResolution = 4;
+                    var text = feature.get('distance') + ' m ' + feature.get('bearing') + ' º' ;
+
+                    if (resolution > maxResolution) {
+                        text = '';
+                    }
+
+                    return text;
+                };
+
+                return new ol.style.Text({
+                    textAlign: align,
+                    textBaseline: baseline,
+                    font: font,
+                    text: getText(feature, resolution),
+                    fill: new ol.style.Fill({color: fillColor}),
+                    offsetX: offsetX,
+                    offsetY: offsetY
+                });
+            };
+
+            var createPointStyleFunction = function() {
+                return function(feature, resolution) {
+                    var style = new ol.style.Style({
+                        image: new ol.style.Circle({
+                            radius: 6,
+                            fill: new ol.style.Fill({color: 'rgba(255, 0, 0, 0.5)'}),
+                            stroke: new ol.style.Stroke({color: 'white', width: 1})
+                        }),
+                        text: createTextStyle(feature, resolution)
+                    });
+                    return [style];
+                };
+            };
 
             var responseSource = new ol.source.Vector({
                 projection: 'EPSG:3857'
@@ -102,7 +140,7 @@
 
             var responseLayer = new ol.layer.Vector({
                 source : responseSource,
-                style : responseStyle
+                style : createPointStyleFunction()
             });
 
             var from23031to3857 = new ol.proj.getTransform("EPSG:23031", "EPSG:3857");
@@ -114,7 +152,6 @@
             /**
              * Array of layers
              *
-             * @type {[ol.layer.*]}
              */
             var layers = [new ol.layer.Tile({
                 source : new ol.source.TileWMS({
@@ -130,7 +167,6 @@
             /**
              * Simple OL3 Map definition
              *
-             * @type {ol.Map}
              */
             var map = new ol.Map({
                 layers : layers,
@@ -143,7 +179,7 @@
             });
 
             var getBearing = function(center, coord) {
-                var bearing = (90 - Math.atan2(center[0] - coord[0], center[1] - coord[1]) * 180 / Math.PI) % 360;
+                var bearing = (90 - Math.atan2(coord[1] - center[1], coord[0] - center[0]) * 180 / Math.PI) % 360;
                 return Math.round(bearing);
             };
 
@@ -160,7 +196,7 @@
                 for (var n in featureCollection.features) {
                     var feature = featureCollection.features[n];
                     var coord = feature.geometry.coordinates;
-                    feature.properties['distance'] = new ol.geom.LineString([theCenter, coord]).getLength();
+                    feature.properties['distance'] = Math.round(new ol.geom.LineString([theCenter, coord]).getLength());
                     feature.properties['bearing'] = getBearing(theCenter, coord);
                 }
                 var features = GeoJSON.readFeatures(featureCollection);
