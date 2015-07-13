@@ -59,6 +59,11 @@
       "description": "A selector populated with WFS data filters a WMS layer",
       "url": "sample_03_basic_map_geocode_gist.html",
       "thumbnail": "sample_03_basic_map_geocode_gist.png"
+    },
+    {
+      "title": "Exploring surface elements",
+      "description": "Exploring elements surface using layer ELEMENTS_SUPERFICIE",
+      "url": "on_soc_using_layer.html"
     }
   ]
 }, {
