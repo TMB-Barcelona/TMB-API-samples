@@ -75,6 +75,12 @@
       "description": "Discover nearby services",
       "url": "on_soc_sample_gist.html",
       "thumbnail": "on_soc_sample_gist.png"
+    },
+    {
+      "title": "Exploring surface elements",
+      "description": "Exploring elements surface using layer ELEMENTS_SUPERFICIE",
+      "url": "on_soc_using_layer.html",
+      "thumbnail": "on_soc_using_layer.png"
     }
   ]
 }, {
