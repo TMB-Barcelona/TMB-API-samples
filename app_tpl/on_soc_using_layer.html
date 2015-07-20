@@ -196,30 +196,52 @@ include "ganalytics.html"
 
 		responseSource.clear(true);
 		responseSource.addFeatures(features);
+
+        var selectedFeature = new ol.Feature();
+        selectedFeature.setId('dummy-feature');
+
+        map.on('pointermove', function(evt) {
+            map.forEachFeatureAtPixel(evt.pixel, function(feature) {
+                if (selectedFeature.getId() !== feature.getId()) {
+                    selectedFeature = feature;
+                    var coord = feature.getGeometry().getCoordinates();
+                    getNearbyThings(coord, 200, function(response) {
+
+                    }, "elements_superficie_corresp");
+                    return true;
+                } else {
+                    return true;
+                }
+
+
+            });
+        })
 	};
 
 	/**
 	 * Get features from ELEMENTS_SUPERFICIE layer
 	 *
 	 */
-	var getNearbyThings = function(coord) {
+	var getNearbyThings = function(coord, radius, callback, layer) {
+
+        var typeName = "TMB:ELEMENTS_SUPERFICIE";
+
+        if (layer === "elements_superficie_corresp") {
+            typeName = "TMB:ELEMENTS_SUPERFICIE_CORRESP";
+        }
 
 		theCenter = new ol.proj.transform(coord, "EPSG:3857", "EPSG:4326");
-
-		var textRadius = document.getElementById('radius_box').value;
-		var theRadius = (textRadius === "") ? "500" : textRadius;
-
 
 		var url = 'http://api.tmb.cat/v1/maps/wfs?' +
 				'app_key=' + write_your_app_key_here +
 				'&app_id=' + write_your_app_id_here +
 				'&service=WFS&version=1.1.0&request=GetFeature' +
-				'&typename=TMB:ELEMENTS_SUPERFICIE' +
+				'&typename=' + typeName +
 				'&srsName=EPSG:3857' +
 				'&outputFormat=application/json' +
-				'&viewparams=P_LON:' + theCenter[0] + ';P_LAT:' + theCenter[1] + ';P_DIST:' + theRadius;
+				'&viewparams=P_LON:' + theCenter[0] + ';P_LAT:' + theCenter[1] + ';P_DIST:' + radius;
 
-		ajax(url, processFeatures);
+		ajax(url, callback);
 
 	};
 
@@ -247,7 +269,10 @@ include "ganalytics.html"
 		marker.setStyle(iconStyle);
 		pushpin.addFeature(marker);
 
-		getNearbyThings(evt.coordinate);
+        var textRadius = document.getElementById('radius_box').value;
+        var theRadius = (textRadius === "") ? "500" : textRadius;
+
+		getNearbyThings(evt.coordinate, theRadius, processFeatures);
 	});
 
 </script>
