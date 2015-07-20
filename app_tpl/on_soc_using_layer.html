@@ -19,9 +19,10 @@ include "header.html"
 
 		<h2>Exploring Surface Elements</h2>
 
-		<p>Exploring surface elements using the TMB:ELEMENTS_SUPERFICIE layer to get all nearby features inside the radius set by user.</p>
+		<p>Exploring surface elements using the TMB:ELEMENTS_SUPERFICIE layer to get all nearby features inside the radius set by user.
+            Can see all connections inside a 200 meters radius hovering the features</p>
 
-		<!-- HERE YOUR HTML e.g.: map, select, button... -->
+        <div id="waiting" class="alert alert-warning" role="alert" style="visibility: hidden">Waiting for response...</div>
 
 		<div id="map" class="map" style="margin-bottom: 5px"></div>
 
@@ -95,6 +96,14 @@ include "ganalytics.html"
 
 		getFeaturesRequest.send();
 	}
+
+    /**
+     * Helper to manage warning visibility
+     *
+     */
+    var warning = function(visibility) {
+        document.getElementById('waiting').setAttribute('style', 'visibility: ' + visibility);
+    };
 
     /**
      * Layer to show Pushpin
@@ -235,6 +244,7 @@ include "ganalytics.html"
         }
         listCorresps.innerHTML = content;
 
+        warning('hidden');
     };
 
 	/**
@@ -249,6 +259,8 @@ include "ganalytics.html"
 
 		responseSource.clear(true);
 		responseSource.addFeatures(features);
+
+        warning('hidden');
 
         var selectedFeature = new ol.Feature();
         selectedFeature.setId('dummy-feature');
@@ -294,6 +306,8 @@ include "ganalytics.html"
 				'&srsName=EPSG:3857' +
 				'&outputFormat=application/json' +
 				'&viewparams=P_LON:' + theCenter[0] + ';P_LAT:' + theCenter[1] + ';P_DIST:' + radius;
+
+        warning('visible');
 
 		ajax(url, callback);
 	};
