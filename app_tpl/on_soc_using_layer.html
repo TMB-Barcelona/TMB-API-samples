@@ -4,6 +4,7 @@
 	include "head.html"
 
 	include "ol3/head.html"
+
 </head>
 <body>
 <!--[if lt IE 10]>
@@ -22,15 +23,38 @@ include "header.html"
 
 		<!-- HERE YOUR HTML e.g.: map, select, button... -->
 
-		<div id="map" class="map"></div>
-		<div style="margin-top: 5px">
-			<label for="radius_box">Radius (m):</label>
-			<input type="text" id="radius_box" placeholder="500"/>
-		</div>
+		<div id="map" class="map" style="margin-bottom: 5px"></div>
 
-		<!-- -->
+        <div class="row">
+            <!-- Text box to insert radius -->
+            <div class="panel panel-default col-md-5">
+                <div class="panel-body">
+                    <label for="radius_box">Radius (m):</label>
+                    <input type="text" id="radius_box" placeholder="500"/>
+                </div>
+            </div>
+        </div>
 
-		include "text-muted.html"
+        <div class="row">
+            <!-- PopUp -->
+            <div id="corresps" class="panel panel-default">
+                <div class="panel-heading">Corresps:</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>ID_LINIA</th>
+                            <th>DESC_LINIA</th>
+                            <th>DISTANCE_IN_METERS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="list-corresp">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        include "text-muted.html"
 
 		include "footer.html"
 
@@ -56,10 +80,6 @@ include "ganalytics.html"
 
 	'use strict';
 
-	var theUnits = 'meters';
-
-	var theCenter;
-
 	/**
 	 * Helper AJAX Function based in Vanilla JS
 	 */
@@ -76,6 +96,10 @@ include "ganalytics.html"
 		getFeaturesRequest.send();
 	}
 
+    /**
+     * Layer to show Pushpin
+     *
+     */
 	var pushpin = new ol.source.Vector();
 
 	var pushpinLayer = new ol.layer.Vector({
@@ -146,6 +170,9 @@ include "ganalytics.html"
 		};
 	};
 
+    /**
+     * Sources and layers to features from WFS
+     */
 	var responseSource = new ol.source.Vector({
 		projection: 'EPSG:3857'
 	});
@@ -155,8 +182,14 @@ include "ganalytics.html"
 		style : createPointStyleFunction()
 	});
 
+    /**
+     * Elements needed by popup
+     * For more details see: http://openlayers.org/en/v3.7.0/examples/popup.html
+     */
+    var listCorresps = document.getElementById('list-corresp');
+
 	/**
-	 * Array of layers
+	 * Array with all needed layers
 	 *
 	 */
 	var layers = [new ol.layer.Tile({
@@ -184,9 +217,29 @@ include "ganalytics.html"
 		})
 	});
 
+    var processCorrespFeatures = function(response) {
+        var GeoJSON = new ol.format.GeoJSON();
+        var featureCollection = JSON.parse(response.responseText);
+        var features = GeoJSON.readFeatures(featureCollection);
+
+        var content = "";
+        listCorresps.innerHTML = content;
+        for (var index in features) {
+            var feature = features[index];
+            content += '<tr>' +
+                    '<th scope="row">' + index.toString() + '</th>' +
+                    '<td>' + feature.get('ID_LINIA') + '</td>' +
+                    '<td>' + feature.get('DESC_LINIA') + '</td>' +
+                    '<td>' + feature.get('DISTANCE_IN_METERS') + '</td>' +
+                    '</tr>';
+        }
+        listCorresps.innerHTML = content;
+
+    };
+
 	/**
 	 * Process features from WFS response.
-	 *
+	 * @param {Object} The full Ajax response
 	 */
 	var processFeatures = function(response) {
 
@@ -205,9 +258,7 @@ include "ganalytics.html"
                 if (selectedFeature.getId() !== feature.getId()) {
                     selectedFeature = feature;
                     var coord = feature.getGeometry().getCoordinates();
-                    getNearbyThings(coord, 200, function(response) {
-
-                    }, "elements_superficie_corresp");
+                    getNearbyThings(coord, 200, processCorrespFeatures, "TMB:ELEMENTS_SUPERFICIE_CORRESP");
                     return true;
                 } else {
                     return true;
@@ -219,18 +270,21 @@ include "ganalytics.html"
 	};
 
 	/**
-	 * Get features from ELEMENTS_SUPERFICIE layer
-	 *
+	 * Get features from WFS layer
+	 * @param {ol.Coordinate} coordinates of center
+     * @param {Integer} radius
+     * @param {function} Function called after get response. Receives full repsponse
+     * @param {String} Name of WFS layer
 	 */
 	var getNearbyThings = function(coord, radius, callback, layer) {
 
         var typeName = "TMB:ELEMENTS_SUPERFICIE";
 
-        if (layer === "elements_superficie_corresp") {
-            typeName = "TMB:ELEMENTS_SUPERFICIE_CORRESP";
+        if (layer) {
+            typeName = layer;
         }
 
-		theCenter = new ol.proj.transform(coord, "EPSG:3857", "EPSG:4326");
+		var theCenter = new ol.proj.transform(coord, "EPSG:3857", "EPSG:4326");
 
 		var url = 'http://api.tmb.cat/v1/maps/wfs?' +
 				'app_key=' + write_your_app_key_here +
@@ -242,7 +296,6 @@ include "ganalytics.html"
 				'&viewparams=P_LON:' + theCenter[0] + ';P_LAT:' + theCenter[1] + ';P_DIST:' + radius;
 
 		ajax(url, callback);
-
 	};
 
 	/**
@@ -256,7 +309,7 @@ include "ganalytics.html"
 		})
 	});
 
-	map.on('click', function(evt) {
+	map.on('singleclick', function(evt) {
 
 		pushpin.clear(true);
 
