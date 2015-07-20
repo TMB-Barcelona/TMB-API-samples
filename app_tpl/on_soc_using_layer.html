@@ -18,11 +18,15 @@ include "header.html"
 
 		<h2>Exploring Surface Elements</h2>
 
-		<p>Exploring surface elements using the TMB:ELEMENTS_SUPERFICIE layer to get all nearby features inside the radius had set by user.</p>
+		<p>Exploring surface elements using the TMB:ELEMENTS_SUPERFICIE layer to get all nearby features inside the radius set by user.</p>
 
 		<!-- HERE YOUR HTML e.g.: map, select, button... -->
 
 		<div id="map" class="map"></div>
+		<div style="margin-top: 5px">
+			<label for="radius_box">Radius (m):</label>
+			<input type="text" id="radius_box" placeholder="500"/>
+		</div>
 
 		<!-- -->
 
@@ -51,8 +55,6 @@ include "ganalytics.html"
 <script id="code">
 
 	'use strict';
-
-	var theRadius = 1000;
 
 	var theUnits = 'meters';
 
@@ -191,6 +193,10 @@ include "ganalytics.html"
 
 		theCenter = new ol.proj.transform(coord, "EPSG:3857", "EPSG:4326");
 
+		var textRadius = document.getElementById('radius_box').value;
+		var theRadius = (textRadius === "") ? "500" : textRadius;
+
+
 		var url = 'http://api.tmb.cat/v1/maps/wfs?' +
 				'app_key=' + write_your_app_key_here +
 				'&app_id=' + write_your_app_id_here +
@@ -198,7 +204,7 @@ include "ganalytics.html"
 				'&typename=TMB:ELEMENTS_SUPERFICIE' +
 				'&srsName=EPSG:3857' +
 				'&outputFormat=application/json' +
-				'&viewparams=P_LON:' + theCenter[0] + ';P_LAT:' + theCenter[1];
+				'&viewparams=P_LON:' + theCenter[0] + ';P_LAT:' + theCenter[1] + ';P_DIST:' + theRadius;
 
 		ajax(url, processFeatures);
 
