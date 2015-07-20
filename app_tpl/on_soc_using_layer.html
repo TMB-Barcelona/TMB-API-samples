@@ -1,0 +1,350 @@
+<!doctype html>
+<html class="no-js">
+<head>
+	include "head.html"
+
+	include "ol3/head.html"
+
+</head>
+<body>
+<!--[if lt IE 10]>
+<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+<![endif]-->
+
+include "header.html"
+
+<section class="main-section">
+
+	<div class="container">
+
+		<h2>Exploring Surface Elements</h2>
+
+		<p>Exploring surface elements using the TMB:ELEMENTS_SUPERFICIE layer to get all nearby features inside the radius set by user.
+            Can see all connections inside a 200 meters radius hovering the features</p>
+
+		<div id="map" class="map" style="margin-bottom: 5px"></div>
+
+        <div class="row">
+            <div id="waiting" class="alert alert-warning" role="alert" style="visibility: hidden">Waiting for response...</div>
+
+            <!-- Text box to insert radius -->
+            <div class="panel panel-default col-md-5">
+                <div class="panel-body">
+                    <label for="radius_box">Radius (m):</label>
+                    <input type="text" id="radius_box" placeholder="500"/>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- PopUp -->
+            <div id="corresps" class="panel panel-default">
+                <div class="panel-heading">Corresps:</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>ID_LINIA</th>
+                            <th>DESC_LINIA</th>
+                            <th>DISTANCE_IN_METERS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="list-corresp">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        include "text-muted.html"
+
+		include "footer.html"
+
+	</div>
+
+</section>
+
+include "ol3/tail.html"
+
+<script src="http://cdnjs.cloudflare.com/ajax/libs/proj4js/2.2.1/proj4.js" type="text/javascript"></script>
+
+include "tail.html"
+
+include "ganalytics.html"
+
+<script>
+
+	// HERE YOUR JS INVISIBLE CODE e.g.: app_key...
+
+</script>
+
+<script id="code">
+
+	'use strict';
+
+	/**
+	 * Helper AJAX Function based in Vanilla JS
+	 */
+	function ajax(url, callback) {
+		var getFeaturesRequest = new XMLHttpRequest();
+
+		getFeaturesRequest.onreadystatechange = function () {
+			if (getFeaturesRequest.readyState != 4 || getFeaturesRequest.status != 200) return;
+			callback(getFeaturesRequest);
+		};
+		getFeaturesRequest.overrideMimeType('application/json');
+		getFeaturesRequest.open('GET', url, true);
+
+		getFeaturesRequest.send();
+	}
+
+    /**
+     * Helper to manage warning visibility
+     *
+     */
+    var warning = function(visibility) {
+        document.getElementById('waiting').setAttribute('style', 'visibility: ' + visibility);
+    };
+
+    /**
+     * Layer to show Pushpin
+     *
+     */
+	var pushpin = new ol.source.Vector();
+
+	var pushpinLayer = new ol.layer.Vector({
+		source: pushpin
+	});
+
+	/**
+	 * Functions to create styles
+	 * See: http://openlayers.org/en/v3.7.0/examples/vector-labels.html
+	 *
+	 */
+	var createTextStyle = function(feature, resolution) {
+		var align = 'center';
+		var baseline = 'bottom';
+		var size = '14px';
+		var offsetX = 0;
+		var offsetY = 25;
+		var weight = 'bold';
+		var fillColor = '#ffffff';
+		var font = weight + ' ' + size + ' ' + 'arial';
+
+		var getText = function(feature, resolution) {
+			var maxResolution = 4;
+			var text = Math.round(feature.get('DISTANCE_IN_METERS')) + ' m ' + feature.get('BEARING_IN_DEGREES') + ' º' ;
+
+			if (resolution > maxResolution) {
+				text = '';
+			}
+
+			return text;
+		};
+
+		return new ol.style.Text({
+			textAlign: align,
+			textBaseline: baseline,
+			font: font,
+			text: getText(feature, resolution),
+			fill: new ol.style.Fill({color: fillColor}),
+			offsetX: offsetX,
+			offsetY: offsetY
+		});
+	};
+
+	var createPointStyleFunction = function() {
+
+		return function(feature, resolution) {
+			var icon;
+			var picto = feature.get('PICTO');
+			if (picto === "NXB") {
+                icon = new ol.style.Icon({
+                    src: "images/nxb_logo.png"
+                });
+			} else if (picto === "BUS") {
+                icon = new ol.style.Icon({
+                    src: "images/bus_logo.png"
+                });
+			} else {
+                icon = new ol.style.Icon({
+                    src: "images/metro_logo.png"
+                });
+            }
+
+			var style = new ol.style.Style({
+                image : icon,
+                text: createTextStyle(feature, resolution)
+            });
+			return [style];
+		};
+	};
+
+    /**
+     * Sources and layers to features from WFS
+     */
+	var responseSource = new ol.source.Vector({
+		projection: 'EPSG:3857'
+	});
+
+	var responseLayer = new ol.layer.Vector({
+		source : responseSource,
+		style : createPointStyleFunction()
+	});
+
+    /**
+     * Elements needed by popup
+     * For more details see: http://openlayers.org/en/v3.7.0/examples/popup.html
+     */
+    var listCorresps = document.getElementById('list-corresp');
+
+	/**
+	 * Array with all needed layers
+	 *
+	 */
+	var layers = [new ol.layer.Tile({
+		source : new ol.source.TileWMS({
+			params : {
+				'LAYERS' : 'OI.OrthoimageCoverage',
+				'FORMAT' : 'image/png'
+			},
+			url : 'http://www.ign.es/wms-inspire/pnoa-ma'
+		})
+	}),
+		pushpinLayer, responseLayer];
+
+	/**
+	 * Simple OL3 Map definition
+	 *
+	 */
+	var map = new ol.Map({
+		layers : layers,
+		target : 'map',
+		view : new ol.View({
+			center : new ol.proj.transform([2.1574, 41.3987], "EPSG:4326", "EPSG:3857"),
+			projection : 'EPSG:3857',
+			zoom : 16
+		})
+	});
+
+    var processCorrespFeatures = function(response) {
+        var GeoJSON = new ol.format.GeoJSON();
+        var featureCollection = JSON.parse(response.responseText);
+        var features = GeoJSON.readFeatures(featureCollection);
+
+        var content = "";
+        listCorresps.innerHTML = content;
+        for (var index in features) {
+            var feature = features[index];
+            content += '<tr>' +
+                    '<th scope="row">' + index.toString() + '</th>' +
+                    '<td>' + feature.get('ID_LINIA') + '</td>' +
+                    '<td>' + feature.get('DESC_LINIA') + '</td>' +
+                    '<td>' + feature.get('DISTANCE_IN_METERS') + '</td>' +
+                    '</tr>';
+        }
+        listCorresps.innerHTML = content;
+
+        warning('hidden');
+    };
+
+	/**
+	 * Process features from WFS response.
+	 * @param {Object} The full Ajax response
+	 */
+	var processFeatures = function(response) {
+
+		var GeoJSON = new ol.format.GeoJSON();
+		var featureCollection = JSON.parse(response.responseText);
+		var features = GeoJSON.readFeatures(featureCollection);
+
+		responseSource.clear(true);
+		responseSource.addFeatures(features);
+
+        warning('hidden');
+
+        var selectedFeature = new ol.Feature();
+        selectedFeature.setId('dummy-feature');
+
+        map.on('pointermove', function(evt) {
+            map.forEachFeatureAtPixel(evt.pixel, function(feature) {
+                if (selectedFeature.getId() !== feature.getId()) {
+                    selectedFeature = feature;
+                    var coord = feature.getGeometry().getCoordinates();
+                    getNearbyThings(coord, 200, processCorrespFeatures, "TMB:ELEMENTS_SUPERFICIE_CORRESP");
+                    return true;
+                } else {
+                    return true;
+                }
+
+
+            });
+        })
+	};
+
+	/**
+	 * Get features from WFS layer
+	 * @param {ol.Coordinate} coordinates of center
+     * @param {Integer} radius
+     * @param {function} Function called after get response. Receives full repsponse
+     * @param {String} Name of WFS layer
+	 */
+	var getNearbyThings = function(coord, radius, callback, layer) {
+
+        var typeName = "TMB:ELEMENTS_SUPERFICIE";
+
+        if (layer) {
+            typeName = layer;
+        }
+
+		var theCenter = new ol.proj.transform(coord, "EPSG:3857", "EPSG:4326");
+
+		var url = 'http://api.tmb.cat/v1/maps/wfs?' +
+				'app_key=' + write_your_app_key_here +
+				'&app_id=' + write_your_app_id_here +
+				'&service=WFS&version=1.1.0&request=GetFeature' +
+				'&typename=' + typeName +
+				'&srsName=EPSG:3857' +
+				'&outputFormat=application/json' +
+				'&viewparams=P_LON:' + theCenter[0] + ';P_LAT:' + theCenter[1] + ';P_DIST:' + radius;
+
+        warning('visible');
+
+		ajax(url, callback);
+	};
+
+	/**
+	 * Create the interaction to manage user's event click into map
+	 *
+	 */
+	var iconStyle = new ol.style.Style({
+		image : new ol.style.Icon({
+			anchor: [0.6, 0.95],
+			src: "images/pushpin.png"
+		})
+	});
+
+	map.on('singleclick', function(evt) {
+
+		pushpin.clear(true);
+
+		var geom = new ol.geom.Point(
+				evt.coordinate
+		);
+
+		var marker = new ol.Feature(geom);
+
+		marker.setStyle(iconStyle);
+		pushpin.addFeature(marker);
+
+        var textRadius = document.getElementById('radius_box').value;
+        var theRadius = (textRadius === "") ? "500" : textRadius;
+
+		getNearbyThings(evt.coordinate, theRadius, processFeatures);
+	});
+
+</script>
+
+include "sourcecode.html"
+
+</body>
+</html>
