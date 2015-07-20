@@ -92,7 +92,7 @@ include "ganalytics.html"
 		var baseline = 'bottom';
 		var size = '14px';
 		var offsetX = 0;
-		var offsetY = 22;
+		var offsetY = 25;
 		var weight = 'bold';
 		var fillColor = '#ffffff';
 		var font = weight + ' ' + size + ' ' + 'arial';
@@ -120,15 +120,24 @@ include "ganalytics.html"
 	};
 
 	var createPointStyleFunction = function() {
+
 		return function(feature, resolution) {
+			var icon;
+			var picto = feature.get('PICTO');
+			if (picto === "NXB") {
+                icon = new ol.style.Icon({
+                    src: "images/nxb_logo.png"
+                });
+			} else if (picto === "BUS") {
+                icon = new ol.style.Icon({
+                    src: "images/bus_logo.png"
+                });
+			}
+
 			var style = new ol.style.Style({
-				image: new ol.style.Circle({
-					radius: 6,
-					fill: new ol.style.Fill({color: 'rgba(255, 0, 0, 0.5)'}),
-					stroke: new ol.style.Stroke({color: 'white', width: 1})
-				}),
-				text: createTextStyle(feature, resolution)
-			});
+                image : icon,
+                text: createTextStyle(feature, resolution)
+            });
 			return [style];
 		};
 	};
