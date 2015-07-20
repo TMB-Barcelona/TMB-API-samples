@@ -132,7 +132,11 @@ include "ganalytics.html"
                 icon = new ol.style.Icon({
                     src: "images/bus_logo.png"
                 });
-			}
+			} else {
+                icon = new ol.style.Icon({
+                    src: "images/metro_logo.png"
+                });
+            }
 
 			var style = new ol.style.Style({
                 image : icon,
