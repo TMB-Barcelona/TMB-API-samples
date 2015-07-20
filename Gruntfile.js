@@ -508,6 +508,7 @@ module.exports = function (grunt) {
     ]);
 
     grunt.registerTask('ghpages', [
+        'clean:gh-pages',
         'build',
         'gh-pages'
     ]);
