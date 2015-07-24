@@ -112,14 +112,14 @@
                 var baseline = 'bottom';
                 var size = '14px';
                 var offsetX = 0;
-                var offsetY = 22;
+                var offsetY = 26;
                 var weight = 'bold';
                 var fillColor = '#ffffff';
                 var font = weight + ' ' + size + ' ' + 'arial';
 
                 var getText = function(feature, resolution) {
                     var maxResolution = 4;
-                    var text = feature.get('DISTANCE_IN_METERS') + ' m ' + feature.get('BEARING') + ' º' ;
+                    var text = feature.get('DISTANCE_IN_METERS') + ' m';
 
                     if (resolution > maxResolution) {
                         text = '';
@@ -142,10 +142,9 @@
             var createPointStyleFunction = function() {
                 return function(feature, resolution) {
                     var style = new ol.style.Style({
-                        image: new ol.style.Circle({
-                            radius: 6,
-                            fill: new ol.style.Fill({color: 'rgba(255, 0, 0, 0.5)'}),
-                            stroke: new ol.style.Stroke({color: 'white', width: 1})
+                        image: new ol.style.Icon({
+                            src: "images/compass.png",
+                            rotation: (Math.PI * feature.get('BEARING')) / 180 // in radians
                         }),
                         text: createTextStyle(feature, resolution)
                     });
