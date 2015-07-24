@@ -67,6 +67,25 @@
 			<!-- HERE YOUR HTML e.g.: map, select, button... -->
 			
             <div id="map" class="map"></div>
+
+            <div class="row">
+                <!-- PopUp -->
+                <div id="corresps" class="panel panel-default">
+                    <div class="panel-heading">Corresps:</div>
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>ID</th>
+                            <th>DESC</th>
+                            <th>DISTANCE_IN_METERS</th>
+                        </tr>
+                        </thead>
+                        <tbody id="list-features">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
             
             <!-- -->
 
@@ -159,14 +178,14 @@
                 var baseline = 'bottom';
                 var size = '14px';
                 var offsetX = 0;
-                var offsetY = 22;
+                var offsetY = 26;
                 var weight = 'bold';
                 var fillColor = '#ffffff';
                 var font = weight + ' ' + size + ' ' + 'arial';
 
                 var getText = function(feature, resolution) {
                     var maxResolution = 4;
-                    var text = feature.get('distance') + ' m ' + feature.get('bearing') + ' º' ;
+                    var text = feature.get('DISTANCE_IN_METERS') + ' m';
 
                     if (resolution > maxResolution) {
                         text = '';
@@ -189,10 +208,9 @@
             var createPointStyleFunction = function() {
                 return function(feature, resolution) {
                     var style = new ol.style.Style({
-                        image: new ol.style.Circle({
-                            radius: 6,
-                            fill: new ol.style.Fill({color: 'rgba(255, 0, 0, 0.5)'}),
-                            stroke: new ol.style.Stroke({color: 'white', width: 1})
+                        image: new ol.style.Icon({
+                            src: "images/compass.png",
+                            rotation: (Math.PI * feature.get('BEARING')) / 180 // in radians
                         }),
                         text: createTextStyle(feature, resolution)
                     });
@@ -253,6 +271,9 @@
              * Process features from WFS response. Calculates the distance and the bearing
              *
              */
+
+            var listFeatures = document.getElementById('list-features');
+
             var processFeatures = function(response) {
                 var GeoJSON = new ol.format.GeoJSON({
                     defaultDataProjection: "EPSG:23031"
@@ -262,13 +283,28 @@
                 for (var n in featureCollection.features) {
                     var feature = featureCollection.features[n];
                     var coord = feature.geometry.coordinates;
-                    feature.properties['distance'] = Math.round(new ol.geom.LineString([theCenter, coord]).getLength());
-                    feature.properties['bearing'] = getBearing(theCenter, coord);
+                    feature.properties['DISTANCE_IN_METERS'] = Math.round(new ol.geom.LineString([theCenter, coord]).getLength());
+                    feature.properties['BEARING'] = getBearing(theCenter, coord);
                 }
                 var features = GeoJSON.readFeatures(featureCollection);
 
                 responseSource.clear(true);
                 responseSource.addFeatures(features);
+
+                var content = "";
+                listFeatures.innerHTML = content;
+                for (var index in features) {
+                    var feature = features[index];
+                    var id = (feature.get('ID_PARADA')) ? feature.get('ID_PARADA') : feature.get('ID_ESTACIO');
+                    var desc = (feature.get('NOM_ESTACIO')) ? feature.get('NOM_ESTACIO') : feature.get('DESC_PARADA');
+                    content += '<tr>' +
+                            '<th scope="row">' + index.toString() + '</th>' +
+                            '<td>' + id + '</td>' +
+                            '<td>' +  desc + '</td>' +
+                            '<td>' + feature.get('DISTANCE_IN_METERS') + '</td>' +
+                            '</tr>';
+                }
+                listFeatures.innerHTML = content;
             };
 
             /**

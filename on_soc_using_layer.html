@@ -82,17 +82,17 @@
         <div class="row">
             <!-- PopUp -->
             <div id="corresps" class="panel panel-default">
-                <div class="panel-heading">Corresps:</div>
+                <div class="panel-heading">Interchanges for selected: <b id="codi-linia"></b> - <i id="nom-stop"></i></div>
                 <table class="table">
                     <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>ID_LINIA</th>
-                            <th>DESC_LINIA</th>
-                            <th>DISTANCE_IN_METERS</th>
-                        </tr>
+                    <tr>
+                        <th>#</th>
+                        <th>ID LINIA</th>
+                        <th>DESC LINIA</th>
+                        <th>DISTANCE_IN_METERS</th>
+                    </tr>
                     </thead>
-                    <tbody id="list-corresp">
+                    <tbody id="list-features">
                     </tbody>
                 </table>
             </div>
@@ -113,8 +113,6 @@
 <script src="http://ol3js.org/en/v3.4.0/build/ol.js"></script>
 
 
-
-<script src="http://cdnjs.cloudflare.com/ajax/libs/proj4js/2.2.1/proj4.js" type="text/javascript"></script>
 
 <script src="scripts/9016e7fe.vendor.js"></script>
 
@@ -145,6 +143,8 @@
 <script id="code">
 
 	'use strict';
+
+    //var features;
 
 	/**
 	 * Helper AJAX Function based in Vanilla JS
@@ -220,29 +220,36 @@
 	var createPointStyleFunction = function() {
 
 		return function(feature, resolution) {
-			var icon;
-			var picto = feature.get('PICTO');
-			if (picto === "NXB") {
-                icon = new ol.style.Icon({
-                    src: "images/nxb_logo.png"
-                });
-			} else if (picto === "BUS") {
-                icon = new ol.style.Icon({
-                    src: "images/bus_logo.png"
-                });
-			} else {
-                icon = new ol.style.Icon({
-                    src: "images/metro_logo.png"
-                });
-            }
 
 			var style = new ol.style.Style({
-                image : icon,
+                image : new ol.style.Circle({
+					radius: 6,
+					fill: new ol.style.Fill({
+                        color: 'rgba(255, 0, 0, 0.5)'
+                    }),
+					stroke: new ol.style.Stroke({
+                        color: 'white',
+                        width: 1
+                    })
+				}),
                 text: createTextStyle(feature, resolution)
             });
 			return [style];
 		};
 	};
+
+    var selectedStyle = new ol.style.Style({
+        image: new ol.style.Circle({
+            radius: 12,
+            fill: new ol.style.Fill({
+                color: 'rgba(255, 0, 0, 0.5)'
+            }),
+            stroke: new ol.style.Stroke({
+                color: 'white',
+                width: 2
+            })
+        })
+    });
 
     /**
      * Sources and layers to features from WFS
@@ -255,12 +262,6 @@
 		source : responseSource,
 		style : createPointStyleFunction()
 	});
-
-    /**
-     * Elements needed by popup
-     * For more details see: http://openlayers.org/en/v3.7.0/examples/popup.html
-     */
-    var listCorresps = document.getElementById('list-corresp');
 
 	/**
 	 * Array with all needed layers
@@ -291,26 +292,28 @@
 		})
 	});
 
-    var processCorrespFeatures = function(response) {
-        var GeoJSON = new ol.format.GeoJSON();
-        var featureCollection = JSON.parse(response.responseText);
-        var features = GeoJSON.readFeatures(featureCollection);
+    /**
+     *
+     */
+    var loadCorrespFeature = function(features, selectedFeature) {
+
+        var listFeatures = document.getElementById('list-features');
 
         var content = "";
-        listCorresps.innerHTML = content;
+        listFeatures.innerHTML = content;
         for (var index in features) {
             var feature = features[index];
-            content += '<tr>' +
-                    '<th scope="row">' + index.toString() + '</th>' +
-                    '<td>' + feature.get('ID_LINIA') + '</td>' +
-                    '<td>' + feature.get('DESC_LINIA') + '</td>' +
-                    '<td>' + feature.get('DISTANCE_IN_METERS') + '</td>' +
-                    '</tr>';
+            if (feature.get('CODI') === selectedFeature.get('CODI')) {
+                content += '<tr>' +
+                        '<th scope="row">' + index.toString() + '</th>' +
+                        '<td>' + feature.get('ID_LINIA') + '</td>' +
+                        '<td>' +  feature.get('DESC_LINIA') + '</td>' +
+                        '<td>' + feature.get('DISTANCE_IN_METERS') + '</td>' +
+                        '</tr>';
+            }
         }
-        listCorresps.innerHTML = content;
-
-        warning('hidden');
-    };
+        listFeatures.innerHTML = content;
+    }
 
 	/**
 	 * Process features from WFS response.
@@ -323,7 +326,13 @@
 		var features = GeoJSON.readFeatures(featureCollection);
 
 		responseSource.clear(true);
-		responseSource.addFeatures(features);
+		for (var index in features) {
+            var feature = features[index];
+            var added = responseSource.getFeatureById(feature.getId());
+            if (!added) {
+                responseSource.addFeature(feature);
+            }
+        }
 
         warning('hidden');
 
@@ -332,16 +341,17 @@
 
         map.on('pointermove', function(evt) {
             map.forEachFeatureAtPixel(evt.pixel, function(feature) {
-                if (selectedFeature.getId() !== feature.getId()) {
+                if (feature.getId() !== 'pushpin' && selectedFeature.getId() !== feature.getId()) {
+                    selectedFeature.setStyle(null);
                     selectedFeature = feature;
-                    var coord = feature.getGeometry().getCoordinates();
-                    getNearbyThings(coord, 200, processCorrespFeatures, "TMB:ELEMENTS_SUPERFICIE_CORRESP");
+                    document.getElementById('nom-stop').innerHTML = selectedFeature.get('NOM');
+                    document.getElementById('codi-linia').innerHTML = selectedFeature.get('CODI');
+                    selectedFeature.setStyle(selectedStyle);
+                    loadCorrespFeature(features, selectedFeature);
                     return true;
                 } else {
                     return true;
                 }
-
-
             });
         })
 	};
@@ -355,7 +365,7 @@
 	 */
 	var getNearbyThings = function(coord, radius, callback, layer) {
 
-        var typeName = "TMB:ELEMENTS_SUPERFICIE";
+        var typeName = "TMB:ELEMENTS_SUPERFICIE_CORRESP";
 
         if (layer) {
             typeName = layer;
@@ -397,6 +407,7 @@
 		);
 
 		var marker = new ol.Feature(geom);
+        marker.setId('pushpin');
 
 		marker.setStyle(iconStyle);
 		pushpin.addFeature(marker);
