@@ -35,6 +35,25 @@ include "header.html"
             </div>
         </div>
 
+        <div class="row">
+            <!-- PopUp -->
+            <div id="corresps" class="panel panel-default">
+                <div class="panel-heading">Interchanges for selected: <b id="codi-linia"></b> - <i id="nom-stop"></i></div>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>ID LINIA</th>
+                        <th>DESC LINIA</th>
+                        <th>DISTANCE_IN_METERS</th>
+                    </tr>
+                    </thead>
+                    <tbody id="list-features">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         include "text-muted.html"
 
 		include "footer.html"
@@ -59,7 +78,7 @@ include "ganalytics.html"
 
 	'use strict';
 
-    var features;
+    //var features;
 
 	/**
 	 * Helper AJAX Function based in Vanilla JS
@@ -207,6 +226,29 @@ include "ganalytics.html"
 		})
 	});
 
+    /**
+     *
+     */
+    var loadCorrespFeature = function(features, selectedFeature) {
+
+        var listFeatures = document.getElementById('list-features');
+
+        var content = "";
+        listFeatures.innerHTML = content;
+        for (var index in features) {
+            var feature = features[index];
+            if (feature.get('CODI') === selectedFeature.get('CODI')) {
+                content += '<tr>' +
+                        '<th scope="row">' + index.toString() + '</th>' +
+                        '<td>' + feature.get('ID_LINIA') + '</td>' +
+                        '<td>' +  feature.get('DESC_LINIA') + '</td>' +
+                        '<td>' + feature.get('DISTANCE_IN_METERS') + '</td>' +
+                        '</tr>';
+            }
+        }
+        listFeatures.innerHTML = content;
+    }
+
 	/**
 	 * Process features from WFS response.
 	 * @param {Object} The full Ajax response
@@ -215,7 +257,7 @@ include "ganalytics.html"
 
 		var GeoJSON = new ol.format.GeoJSON();
 		var featureCollection = JSON.parse(response.responseText);
-		features = GeoJSON.readFeatures(featureCollection);
+		var features = GeoJSON.readFeatures(featureCollection);
 
 		responseSource.clear(true);
 		for (var index in features) {
@@ -236,7 +278,10 @@ include "ganalytics.html"
                 if (feature.getId() !== 'pushpin' && selectedFeature.getId() !== feature.getId()) {
                     selectedFeature.setStyle(null);
                     selectedFeature = feature;
-                    feature.setStyle(selectedStyle);
+                    document.getElementById('nom-stop').innerHTML = selectedFeature.get('NOM');
+                    document.getElementById('codi-linia').innerHTML = selectedFeature.get('CODI');
+                    selectedFeature.setStyle(selectedStyle);
+                    loadCorrespFeature(features, selectedFeature);
                     return true;
                 } else {
                     return true;
