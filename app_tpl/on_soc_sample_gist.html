@@ -32,7 +32,7 @@
                         <thead>
                         <tr>
                             <th>#</th>
-                            <th>ID</th>
+                            <th>CODI</th>
                             <th>DESC</th>
                             <th>DISTANCE_IN_METERS</th>
                         </tr>
@@ -119,7 +119,7 @@
 
                 var getText = function(feature, resolution) {
                     var maxResolution = 4;
-                    var text = feature.get('DISTANCE_IN_METERS') + ' m';
+                    var text = feature.get('DISTANCE_IN_METERS') + ' m ' + feature.get('BEARING') + ' º' ;
 
                     if (resolution > maxResolution) {
                         text = '';
@@ -141,11 +141,18 @@
 
             var createPointStyleFunction = function() {
                 return function(feature, resolution) {
+                    var icon = null;
+                    if (feature.get('ID_ESTACIO')) {
+                        icon = new ol.style.Icon({
+                            src: "images/metro_logo.png"
+                        })
+                    } else if (feature.get('ID_PARADA')) {
+                        icon = new ol.style.Icon({
+                            src: "images/bus_logo.png"
+                        })
+                    }
                     var style = new ol.style.Style({
-                        image: new ol.style.Icon({
-                            src: "images/compass.png",
-                            rotation: (Math.PI * feature.get('BEARING')) / 180 // in radians
-                        }),
+                        image: icon,
                         text: createTextStyle(feature, resolution)
                     });
                     return [style];
@@ -229,7 +236,7 @@
                 listFeatures.innerHTML = content;
                 for (var index in features) {
                     var feature = features[index];
-                    var id = (feature.get('ID_PARADA')) ? feature.get('ID_PARADA') : feature.get('ID_ESTACIO');
+                    var id = (feature.get('ID_PARADA')) ? feature.get('CODI_PARADA') : feature.get('ID_ESTACIO');
                     var desc = (feature.get('NOM_ESTACIO')) ? feature.get('NOM_ESTACIO') : feature.get('DESC_PARADA');
                     content += '<tr>' +
                             '<th scope="row">' + index.toString() + '</th>' +
