@@ -87,7 +87,7 @@
                     <thead>
                     <tr>
                         <th>#</th>
-                        <th>ID LINIA</th>
+                        <th>CODI LINIA</th>
                         <th>DESC LINIA</th>
                         <th>DISTANCE_IN_METERS</th>
                     </tr>
@@ -306,7 +306,7 @@
             if (feature.get('CODI') === selectedFeature.get('CODI')) {
                 content += '<tr>' +
                         '<th scope="row">' + index.toString() + '</th>' +
-                        '<td>' + feature.get('ID_LINIA') + '</td>' +
+                        '<td>' + feature.get('CODI_LINIA') + '</td>' +
                         '<td>' +  feature.get('DESC_LINIA') + '</td>' +
                         '<td>' + feature.get('DISTANCE_IN_METERS') + '</td>' +
                         '</tr>';
