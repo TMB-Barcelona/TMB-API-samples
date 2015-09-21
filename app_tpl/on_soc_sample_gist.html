@@ -236,7 +236,7 @@
                 listFeatures.innerHTML = content;
                 for (var index in features) {
                     var feature = features[index];
-                    var id = (feature.get('ID_PARADA')) ? feature.get('CODI_PARADA') : feature.get('ID_ESTACIO');
+                    var id = (feature.get('ID_PARADA')) ? feature.get('CODI_PARADA') : feature.get('CODI_ESTACIO');
                     var desc = (feature.get('NOM_ESTACIO')) ? feature.get('NOM_ESTACIO') : feature.get('DESC_PARADA');
                     content += '<tr>' +
                             '<th scope="row">' + index.toString() + '</th>' +
@@ -268,7 +268,7 @@
                         'app_key=' + write_your_app_key_here +
                         '&app_id=' + write_your_app_id_here +
                         '&service=WFS&version=1.1.0&request=GetFeature' +
-                        '&typename=TMB:ESTACIONS,TMB:PARADES_ACTIVES' +
+                        '&typename=TMB:ESTACIONS_LINIA,TMB:PARADES_ACTIVES' +
                         '&srsName=EPSG:23031' +
                         '&cql_filter=' + CQLFilter +
                         '&outputFormat=application/json';
