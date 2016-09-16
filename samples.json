@@ -107,6 +107,12 @@
       "description": "Calculate route between two points using TMB Planner API",
       "url": "api_06_route_two_points.html",
       "thumbnail": "api_06_route_two_points.png"
+    },
+    {
+      "title": "Colored route from given coordinates",
+      "description": "Calculate a route between two points read from URL, and paint each leg in its corresponding color",
+      "url": "api_08_route_by_url.html?from=41.384115,2.111178&to=41.288982,2.074282",
+      "thumbnail": "api_08_route_by_url.png"
     }
   ]
 }
