@@ -1,0 +1,166 @@
+<!doctype html>
+<html class="no-js">
+    <head>
+        include "head.html"
+
+        include "ol3/head.html"
+    </head>
+    <body>
+        <!--[if lt IE 10]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        include "header.html"
+
+        <section class="main-section">
+
+        <div class="container">
+
+            <h2>Calculate route between two points</h2>
+
+            <p> Calculate route between two points using TMB Planner API.</p>
+            <p> Set the "from" and "to" parameters in the URL. For example: <a href="?from=41.384115,2.111178&amp;to=41.288982,2.074282">?from=41.384115,2.111178&amp;to=41.288982,2.074282</a></p>
+
+			<!-- HERE YOUR HTML e.g.: map, select, button... -->
+			
+            <div id="map" class="map"></div>
+            
+            <!-- -->
+
+            include "text-muted.html"
+
+            include "footer.html"
+
+        </div>
+
+        </section>
+
+        include "ol3/tail.html"
+
+        include "tail.html"
+
+        include "ganalytics.html"
+        
+        <script>
+        
+        	 var images = {
+                 start: 'images/start.png',
+                 stop: 'images/stop.png'
+             };
+        	  
+        </script>
+        
+        <script id="code">
+
+            function getURLParameter(name) {
+              return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
+            }
+
+            var layers = [
+                new ol.layer.Tile({
+                    source: new ol.source.OSM({
+                        url: "//{a-c}.tile.thunderforest.com/transport/{z}/{x}/{y}.png"
+                    })
+                })
+            ];
+
+            /**
+             * Source to save markers
+             * @type {ol.source.Vector}
+             */
+            var markers = new ol.source.Vector();
+
+            /**
+             * Source to save the route
+             * @type {ol.source.Vector}
+             */
+            var routes = new ol.source.Vector();
+
+            /**
+             * Layer to save markers using source
+             * @type {ol.layer.Vector}
+             */
+            var vectorLayer = new ol.layer.Vector({
+                source: markers
+            });
+
+            /**
+             * Layer to save route using the route source.
+             * The style is aplied
+             * @type {ol.layer.Vector}
+             */
+            var routeLayer = new ol.layer.Vector({
+                source: routes,
+                style: function(feature) {
+                    var color = feature.get('routeColor') || "000000"
+                    return [new ol.style.Style({
+                        stroke: new ol.style.Stroke({
+                            color: "#" + color,
+                            width: 5
+                        })
+                    })]
+                }
+            });
+
+            layers.push(vectorLayer, routeLayer);
+
+            var map = new ol.Map({
+                layers: layers,
+                target: 'map',
+                view: new ol.View({
+                    center: new ol.proj.transform([2.1574, 41.3987], "EPSG:4326", "EPSG:3857"),
+                    projection: 'EPSG:3857',
+                    zoom: 12
+                })
+            });
+
+            
+            var api = 'http://api.tmb.cat/v1/planner/plan?';
+
+            var url = api + 'app_key=' + write_your_app_key_here +
+                            '&app_id=' + write_your_app_id_here;
+
+            url = url + '&fromPlace=' + getURLParameter('from') +
+                    '&toPlace=' + getURLParameter('to');
+
+            var getPlanRequest = new XMLHttpRequest();
+
+            getPlanRequest.onreadystatechange = function() {
+                if (getPlanRequest.readyState != 4 || getPlanRequest.status != 200) return;
+                var response = JSON.parse(getPlanRequest.response);
+                var plan = response.plan;
+                var itinerary = plan.itineraries[0];
+                var featuresExtent = ol.extent.createEmpty();
+                for (var n in itinerary.legs) {
+                    var leg = itinerary.legs[n];
+                    /**
+                     * We need to dedode polyline to create the linestring geometry
+                     * https://github.com/openlayers/ol3/blob/v3.3.0/src/ol/format/polylineformat.js
+                     */
+                    var legGeom = ol.format.Polyline.decodeDeltas(leg.legGeometry.points, 2);
+                    /**
+                     * To create the linestring geometry it is necessary reorder the geoms
+                     * obtained from the decoding in an array of coordinates
+                     */
+                    var coordinates = [];
+                    for (var n= 0; n<legGeom.length - 1; n=n+2) {
+                        coordinates.push([legGeom[n + 1], legGeom[n]]);
+                    }
+                    var geom = new ol.geom.LineString(coordinates);
+                    var route = new ol.Feature(geom.transform('EPSG:4326', 'EPSG:3857'));
+                    route.set('routeColor', leg.routeColor);
+                    routes.addFeature(route);
+                    ol.extent.extend(featuresExtent, route.getGeometry().getExtent()); 
+                }
+                map.getView().fitExtent(featuresExtent, map.getSize());
+            };
+            getPlanRequest.overrideMimeType('application/json');
+            getPlanRequest.open('GET', url, true);
+            getPlanRequest.send();
+
+        </script>
+
+        include "sourcecode.html"
+
+    </body>
+</html>
