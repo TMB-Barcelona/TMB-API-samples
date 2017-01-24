@@ -165,8 +165,9 @@
         <script id="code">
 
             var baseLayer = new ol.layer.Tile({
-                style: 'Road',
-                source: new ol.source.MapQuest({layer: 'osm'})
+                source: new ol.source.XYZ({
+                    url: 'https://cartodb-basemaps-a.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png'
+                })
             });
 
             var map = new ol.Map({

@@ -107,11 +107,10 @@
 		<script id="code">
 			// Bing Maps base layer
 			var baseLayer = new ol.layer.Tile({
-			  source: new ol.source.BingMaps({
-				key: 'Ak-dzM4wZjSqTlzveKz5u0d4IQ4bRzVI309GxmkgSVr1ewS6iPSrOvOKhA-CJlm3',
-				imagerySet: 'Aerial'
-			  })
-			});
+                source: new ol.source.XYZ({
+                    url: 'http://geoserveis.icc.cat/icc_mapesmultibase/noutm/wmts/orto/GRID3857/{z}/{x}/{y}.jpeg'
+                })
+            });
 
 			var map = new ol.Map({
 				layers: [baseLayer],

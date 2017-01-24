@@ -134,12 +134,11 @@
                                 })
                             }),
                             new ol.layer.Tile({
-                                title: 'Bing Satellite',
+                                title: 'ICGC Ortofoto',
                                 type: 'base',
                                 visible: false,
-                                source: new ol.source.BingMaps({
-                                    key: 'Ak-dzM4wZjSqTlzveKz5u0d4IQ4bRzVI309GxmkgSVr1ewS6iPSrOvOKhA-CJlm3',
-                                    imagerySet: 'Aerial'
+                                source: new ol.source.XYZ({
+                                    url: 'http://geoserveis.icc.cat/icc_mapesmultibase/noutm/wmts/orto/GRID3857/{z}/{x}/{y}.jpeg'
                                 })
                             })
                         ]
@@ -166,7 +165,7 @@
                 view: new ol.View({
                     center: new ol.proj.transform([2.1574, 41.3987], "EPSG:4326", "EPSG:3857"),
                     projection: 'EPSG:3857',
-                    zoom: 12
+                    zoom: 13
                 })
             });
 
