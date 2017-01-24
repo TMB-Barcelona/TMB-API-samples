@@ -48,7 +48,7 @@ include "ganalytics.html"
         source : new ol.source.TileWMS({
             params : {
                 'LAYERS' : 'ESTACIONS_LINIA,ESTACIONS',
-                'FORMAT' : 'image/png',
+                'FORMAT' : 'image/png8',
                 'app_key' : write_your_app_key_here,
                 'app_id' : write_your_app_id_here,
             },
@@ -60,7 +60,7 @@ include "ganalytics.html"
         source: new ol.source.TileWMS({
             params: {
                 'LAYERS': 'OI.OrthoimageCoverage',
-                'FORMAT': 'image/png'
+                'FORMAT': 'image/jpeg'
             },
             url: 'https://www.ign.es/wms-inspire/pnoa-ma'
         })

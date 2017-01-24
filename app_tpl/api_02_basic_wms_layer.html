@@ -41,10 +41,14 @@
 		<script id="code">
 			// Bing Maps base layer
 			var baseLayer = new ol.layer.Tile({
-                source: new ol.source.XYZ({
-                    url: 'http://geoserveis.icc.cat/icc_mapesmultibase/noutm/wmts/orto/GRID3857/{z}/{x}/{y}.jpeg'
-                })
-            });
+				source : new ol.source.TileWMS({
+					params : {
+						'LAYERS' : 'OI.OrthoimageCoverage',
+						'FORMAT' : 'image/jpeg'
+					},
+					url : 'https://www.ign.es/wms-inspire/pnoa-ma'
+				})
+			});
 
 			var map = new ol.Map({
 				layers: [baseLayer],
@@ -85,7 +89,7 @@
 				source : new ol.source.TileWMS({
 					params : {
 						'LAYERS' : nameLayer,
-						'FORMAT' : 'image/png',
+						'FORMAT' : 'image/png8',
 						'app_key' : write_your_app_key_here,
 						'app_id' : write_your_app_id_here,
 						'name' : nameLayer
