@@ -13,7 +13,7 @@
         <link rel="stylesheet" href="styles/a0d26323.main.css"/>
 
         <!-- OpenLayers -->
-        <link rel="stylesheet" href="http://openlayers.org/en/v3.4.0/css/ol.css">
+        <link rel="stylesheet" href="https://openlayers.org/en/v3.4.0/css/ol.css">
 
         <style>
             ul.line li {
@@ -71,7 +71,7 @@
                             <span class="icon-bar"></span>
                             <span class="icon-bar"></span>
                         </button>
-                        <a class="navbar-brand" href="http://tmb-barcelona.github.io/TMB-API-samples/"><img src="images/logoTMB-shadowy.png" title="TMB Developer Portal"></a>
+                        <a class="navbar-brand" href="https://tmb-barcelona.github.io/TMB-API-samples/"><img src="images/logoTMB-shadowy.png" title="TMB Developer Portal"></a>
                     </div>
                     <div class="navbar-collapse collapse">
 
@@ -140,7 +140,7 @@
 
         </section>
 
-        <script src="scripts/acde9630.vendor.js"></script>
+        <script src="scripts/53710eea.vendor.js"></script>
 
         <script src="scripts/a8e9f4fe.plugins.js"></script>
 
@@ -169,7 +169,7 @@
                 propertyName: "NOM_LINIA,DESC_LINIA,CODI_LINIA,ORIGEN_LINIA,DESTI_LINIA"
             };
 
-            ajax("http://api.tmb.cat/v1/transit/linies/bus/", params, load_lines);
+            ajax("https://api.tmb.cat/v1/transit/linies/bus/", params, load_lines);
 
             // Fills a select with the lines. Reacts to a line selection querying its stops.
             function load_lines(response) {
@@ -199,7 +199,7 @@
                         // Undocumented API feature, use "propertyName" to select properties to be returned (& discard geometry)
                         propertyName: "SENTIT,ORDRE,NOM_PARADA"
                     };
-                    var url = "http://api.tmb.cat/v1/transit/linies/bus/" + event.target.value + "/parades/";
+                    var url = "https://api.tmb.cat/v1/transit/linies/bus/" + event.target.value + "/parades/";
                     ajax(url, params, draw_line_stops);
                 }
             }
