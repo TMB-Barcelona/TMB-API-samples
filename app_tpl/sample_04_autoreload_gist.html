@@ -43,8 +43,9 @@ include "ganalytics.html"
 <script id="code">
 
     var baseLayer = new ol.layer.Tile({
-        style: 'Road',
-        source: new ol.source.MapQuest({layer: 'osm'})
+        source: new ol.source.XYZ({
+            url: 'https://cartodb-basemaps-a.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png'
+        })
     });
 
     var map = new ol.Map({
@@ -83,7 +84,7 @@ include "ganalytics.html"
      * @param projection
      */
     var loaderFunction = function() {
-        var url = 'http://api.tmb.cat/v1/maps/wfs?app_key=' + write_your_app_key_here +
+        var url = 'https://api.tmb.cat/v1/maps/wfs?app_key=' + write_your_app_key_here +
                 '&app_id=' + write_your_app_id_here +
                 '&service=WFS&version=1.1.0&request=GetFeature&' +
                 'typename=' +  nameLayer +

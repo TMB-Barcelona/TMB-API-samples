@@ -14,7 +14,7 @@ For more information, visit http://www.tmb.cat/en/dades-obertes.
 Demo
 ----
 
-You can see the code samples running at http://tmb-barcelona.github.io/TMB-API-samples/
+You can see the code samples running at https://tmb-barcelona.github.io/TMB-API-samples/
 
 
 How to add a new example

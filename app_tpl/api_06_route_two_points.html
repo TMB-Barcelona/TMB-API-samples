@@ -62,7 +62,7 @@
                             'app_key': write_your_app_key_here,
                             'app_id': write_your_app_id_here
                         },
-                        url: 'http://api.tmb.cat/v1/maps/gwc/wms'
+                        url: 'https://api.tmb.cat/v1/maps/gwc/wms'
                     })
                 })
             ];
@@ -147,7 +147,7 @@
                 }
 
                 if (markers.getFeatures().length == 2) {
-                    var api = 'http://api.tmb.cat/v1/planner/plan?';
+                    var api = 'https://api.tmb.cat/v1/planner/plan?';
                     var start = markers.getFeatureById('start');
                     var stop = markers.getFeatureById('stop');
 

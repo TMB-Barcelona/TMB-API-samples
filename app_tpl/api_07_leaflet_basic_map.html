@@ -50,7 +50,7 @@
 
             var map = L.map('map').setView([41.3987, 2.1574], 12);
 
-            L.tileLayer.wms("http://api.tmb.cat/v1/maps/gwc/wms", {
+            L.tileLayer.wms("https://api.tmb.cat/v1/maps/gwc/wms", {
                 'layers': 'TMB:CARTO_SOFT',
                 'format': 'image/png',
                 'transparent': true,
@@ -58,7 +58,7 @@
                 'app_id': write_your_app_id_here
             }).addTo(map);
 
-            L.tileLayer.wms("http://api.tmb.cat/v1/maps/wms", {
+            L.tileLayer.wms("https://api.tmb.cat/v1/maps/wms", {
                 'layers': 'TMB:XARXA_METRO',
                 'format': 'image/png',
                 'transparent': true,

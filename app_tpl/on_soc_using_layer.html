@@ -207,7 +207,7 @@ include "ganalytics.html"
 				'LAYERS' : 'OI.OrthoimageCoverage',
 				'FORMAT' : 'image/png'
 			},
-			url : 'http://www.ign.es/wms-inspire/pnoa-ma'
+			url : 'https://www.ign.es/wms-inspire/pnoa-ma'
 		})
 	}),
 		pushpinLayer, responseLayer];
@@ -307,7 +307,7 @@ include "ganalytics.html"
 
 		var theCenter = new ol.proj.transform(coord, "EPSG:3857", "EPSG:4326");
 
-		var url = 'http://api.tmb.cat/v1/maps/wfs?' +
+		var url = 'https://api.tmb.cat/v1/maps/wfs?' +
 				'app_key=' + write_your_app_key_here +
 				'&app_id=' + write_your_app_id_here +
 				'&service=WFS&version=1.1.0&request=GetFeature' +

@@ -76,7 +76,7 @@
 						'LAYERS' : 'OI.OrthoimageCoverage',
 						'FORMAT' : 'image/png'
 					},
-					url : 'http://www.ign.es/wms-inspire/pnoa-ma'
+					url : 'https://www.ign.es/wms-inspire/pnoa-ma'
 				})
 			})];
 
@@ -124,7 +124,7 @@
 			 * @param projection
 			 */
 			var loaderFunction = function(extent, resolution, projection) {
-				var url = 'http://api.tmb.cat/v1/maps/wfs?' +
+				var url = 'https://api.tmb.cat/v1/maps/wfs?' +
 						'app_key=' + write_your_app_key_here +
 						'&app_id=' + write_your_app_id_here +
 						'&service=WFS&version=1.1.0&request=GetFeature&' +

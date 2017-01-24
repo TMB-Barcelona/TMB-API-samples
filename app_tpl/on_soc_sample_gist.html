@@ -55,7 +55,7 @@
 
         include "ol3/tail.html"
 
-        <script src="http://cdnjs.cloudflare.com/ajax/libs/proj4js/2.2.1/proj4.js" type="text/javascript"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.2.1/proj4.js" type="text/javascript"></script>
 
         include "tail.html"
 
@@ -184,7 +184,7 @@
                         'LAYERS' : 'OI.OrthoimageCoverage',
                         'FORMAT' : 'image/png'
                     },
-                    url : 'http://www.ign.es/wms-inspire/pnoa-ma'
+                    url : 'https://www.ign.es/wms-inspire/pnoa-ma'
                 })
             }),
                 pushpinLayer, responseLayer];
@@ -264,7 +264,7 @@
 
                 var CQLFilter = 'DWITHIN(GEOMETRY,' + [WKT.writeGeometry(geom23031), theRadius.toString(), theUnits].join(',') + ')';
 
-                var url = 'http://api.tmb.cat/v1/maps/wfs?' +
+                var url = 'https://api.tmb.cat/v1/maps/wfs?' +
                         'app_key=' + write_your_app_key_here +
                         '&app_id=' + write_your_app_id_here +
                         '&service=WFS&version=1.1.0&request=GetFeature' +

@@ -106,7 +106,7 @@
                 propertyName: "NOM_LINIA,DESC_LINIA,CODI_LINIA,ORIGEN_LINIA,DESTI_LINIA"
             };
 
-            ajax("http://api.tmb.cat/v1/transit/linies/bus/", params, load_lines);
+            ajax("https://api.tmb.cat/v1/transit/linies/bus/", params, load_lines);
 
             // Fills a select with the lines. Reacts to a line selection querying its stops.
             function load_lines(response) {
@@ -136,7 +136,7 @@
                         // Undocumented API feature, use "propertyName" to select properties to be returned (& discard geometry)
                         propertyName: "SENTIT,ORDRE,NOM_PARADA"
                     };
-                    var url = "http://api.tmb.cat/v1/transit/linies/bus/" + event.target.value + "/parades/";
+                    var url = "https://api.tmb.cat/v1/transit/linies/bus/" + event.target.value + "/parades/";
                     ajax(url, params, draw_line_stops);
                 }
             }

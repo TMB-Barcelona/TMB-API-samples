@@ -41,20 +41,21 @@ include "ganalytics.html"
 <script id="code">
 
     var baseLayer = new ol.layer.Tile({
-        style: 'Road',
-        source: new ol.source.MapQuest({layer: 'osm'})
+        source: new ol.source.XYZ({
+            url: 'https://cartodb-basemaps-a.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png'
+        })
     });
 
     var queryLayer = new ol.layer.Tile({
         source: new ol.source.TileWMS({
             params: {
                 'LAYERS': 'ESTACIONS,ESTACIONS_LINIA,INTERC,PARADES_ACTIVES',
-                'FORMAT': 'image/png',
+                'FORMAT': 'image/png8',
                 'buffer': 50,  // pixel tolerance + icon simbology fix on tiles
                 'app_key': write_your_app_key_here,
                 'app_id': write_your_app_id_here
             },
-            url: 'http://api.tmb.cat/v1/maps/wms'
+            url: 'https://api.tmb.cat/v1/maps/wms'
         })
     });
 
@@ -79,8 +80,13 @@ include "ganalytics.html"
                 evt.coordinate, viewResolution, 'EPSG:3857',
                 {'INFO_FORMAT': 'text/html'});
         if (url) {
-            document.getElementById('info').innerHTML =
-                    '<iframe seamless src="' + url + '" style="width:100%"></iframe>';
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function(request) {
+                if (request.target.readyState != 4 || request.target.status != 200) return;
+                document.getElementById('info').innerHTML = request.target.responseText;
+            };
+            xhr.open('GET', url, true);
+            xhr.send();
         }
     });
 </script>
