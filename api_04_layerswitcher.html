@@ -112,6 +112,11 @@
         </script>
 
         <script id="code">
+            var resolutions = [], matrixIds = [];
+            for (var z = 0; z < 24; ++z) {
+              resolutions[z] = size / Math.pow(2, z);
+              matrixIds[z] = z;
+            }
             var map = new ol.Map({
                 target: 'map',
                 layers: [
@@ -125,7 +130,7 @@
                                 source: new ol.source.TileWMS({
                                     params: {
                                         'LAYERS': 'TMB:CARTO_SOFT',
-                                        'FORMAT': 'image/png',
+                                        'FORMAT': 'image/png8',
                                         'srs': 'EPSG:3857',
                                         'app_key': write_your_app_key_here,
                                         'app_id': write_your_app_id_here
@@ -134,11 +139,12 @@
                                 })
                             }),
                             new ol.layer.Tile({
-                                title: 'ICGC Ortofoto',
-                                type: 'base',
-                                visible: false,
-                                source: new ol.source.XYZ({
-                                    url: 'http://geoserveis.icc.cat/icc_mapesmultibase/noutm/wmts/orto/GRID3857/{z}/{x}/{y}.jpeg'
+                                source : new ol.source.TileWMS({
+                                    params : {
+                                        'LAYERS' : 'OI.OrthoimageCoverage',
+                                        'FORMAT' : 'image/jpeg'
+                                    },
+                                    url : 'https://www.ign.es/wms-inspire/pnoa-ma'
                                 })
                             })
                         ]
@@ -151,7 +157,7 @@
                                 source: new ol.source.ImageWMS({
                                     params: {
                                         'LAYERS': 'TMB:XARXA_METRO',
-                                        'FORMAT': 'image/png',
+                                        'FORMAT': 'image/png8',
                                         'TRANSPARENT': true,
                                         'app_id': write_your_app_id_here,
                                         'app_key': write_your_app_key_here
