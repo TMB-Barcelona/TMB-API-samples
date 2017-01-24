@@ -112,16 +112,11 @@
         </script>
 
         <script id="code">
-            var resolutions = [], matrixIds = [];
-            for (var z = 0; z < 24; ++z) {
-              resolutions[z] = size / Math.pow(2, z);
-              matrixIds[z] = z;
-            }
             var map = new ol.Map({
                 target: 'map',
                 layers: [
                     new ol.layer.Group({
-                        'title': 'Base maps',
+                        title: 'Base maps',
                         layers: [
                             new ol.layer.Tile({
                                 title: 'Carto Soft',
@@ -139,6 +134,9 @@
                                 })
                             }),
                             new ol.layer.Tile({
+                                title: 'Base maps',
+                                type: 'base',
+                                visible: false,
                                 source : new ol.source.TileWMS({
                                     params : {
                                         'LAYERS' : 'OI.OrthoimageCoverage',
